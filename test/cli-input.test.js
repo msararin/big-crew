@@ -452,6 +452,90 @@ test("CLI generates medication repository contract output for maliwan-2", () => 
   assert.ok(releaseMatch[1].includes("Do not ship if the contract shape is unclear or too coupled to D1"));
 });
 
+test("CLI generates read-handler output for the maliwan-2 read-only schedule wiring slice", () => {
+  const result = spawnSync(
+    process.execPath,
+    ["src/index.js", "--input", "inputs/maliwan-2/medication-read-handler.md"],
+    {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }
+  );
+
+  assert.equal(result.status, 0);
+
+  const taskSummaryMatch = result.stdout.match(/## Task Summary\n([\s\S]*?)\n\n## Crew Activity Summary/);
+  assert.ok(taskSummaryMatch, "expected to find the Task Summary section");
+  assert.ok(taskSummaryMatch[1].includes("Maliwan 2.0 Medication Read Handler"));
+  assert.ok(taskSummaryMatch[1].includes("read-only medication schedule flow"));
+  assert.ok(taskSummaryMatch[1].includes("LINE-style handler"));
+  assert.ok(taskSummaryMatch[1].includes("thin runtime wiring task"));
+
+  const crewSummaryMatch = result.stdout.match(/## Crew Activity Summary\n([\s\S]*?)\n\n## Product Value/);
+  assert.ok(crewSummaryMatch, "expected to find the Crew Activity Summary section");
+  assert.ok(crewSummaryMatch[1].includes("Product Strategist: frames this as the read-only LINE handler wiring slice"));
+  assert.ok(crewSummaryMatch[1].includes("System Architect: separates the LINE handler wiring from the orchestrator"));
+  assert.ok(crewSummaryMatch[1].includes("QA Sentinel: requires handler smoke tests and safe fallback coverage"));
+  assert.ok(crewSummaryMatch[1].includes("Prompt Smith: scopes the Codex prompt to the read-only handler wiring only"));
+  assert.ok(crewSummaryMatch[1].includes("Release Captain: keeps the handler wiring small, reviewable, and reversible"));
+
+  const roleTraceMatch = result.stdout.match(/## Crew Role Trace\n([\s\S]*?)\n\n## Product Value/);
+  assert.ok(roleTraceMatch, "expected to find the Crew Role Trace section");
+  assert.ok(roleTraceMatch[1].includes("### Product Strategist"));
+  assert.ok(roleTraceMatch[1].includes("### System Architect"));
+  assert.ok(roleTraceMatch[1].includes("### QA Sentinel"));
+  assert.ok(roleTraceMatch[1].includes("### Prompt Smith"));
+  assert.ok(roleTraceMatch[1].includes("### Release Captain"));
+  assert.ok(roleTraceMatch[1].includes("Protect the read-only handler boundary before adding more LINE behavior."));
+  assert.ok(roleTraceMatch[1].includes("Do not add logging or session behavior yet."));
+  assert.ok(roleTraceMatch[1].includes("Keep the handler thin and the orchestrator boundary explicit."));
+  assert.ok(roleTraceMatch[1].includes("Do not add direct SQL or logging behavior to the handler."));
+  assert.ok(roleTraceMatch[1].includes("Prove the handler wiring and reply model are correct."));
+  assert.ok(roleTraceMatch[1].includes("The handler must stay read-only and avoid accidental logging paths."));
+  assert.ok(roleTraceMatch[1].includes("Keep the prompt on read-only handler wiring only."));
+  assert.ok(roleTraceMatch[1].includes("Do not drift into medication logging or session behavior."));
+  assert.ok(roleTraceMatch[1].includes("Keep the handler wiring small and reviewable."));
+  assert.ok(roleTraceMatch[1].includes("Do not ship if the handler flow is not read-only."));
+  assert.ok(roleTraceMatch[1].includes("The work stays small, reviewable, and reversible."));
+
+  const productValueMatch = result.stdout.match(/## Product Value\n([\s\S]*?)\n\n## Priority/);
+  assert.ok(productValueMatch, "expected to find the Product Value section");
+  assert.ok(productValueMatch[1].includes("A thin LINE handler bridge lets caregivers check today’s medication safely"));
+  assert.ok(productValueMatch[1].includes("Keep the handler thin and dependency-injected."));
+  assert.ok(productValueMatch[1].includes("Do not introduce logging or session behavior yet."));
+
+  const architectureMatch = result.stdout.match(/## Architecture Impact\n([\s\S]*?)\n\n## Acceptance Criteria/);
+  assert.ok(architectureMatch, "expected to find the Architecture Impact section");
+  assert.ok(architectureMatch[1].includes("thin handler-to-orchestrator boundary"));
+  assert.ok(architectureMatch[1].includes("handler dependency-injected and reviewable"));
+  assert.ok(architectureMatch[1].includes("Keep the orchestrator boundary separate from LINE text parsing."));
+
+  const priorityMatch = result.stdout.match(/## Priority\n([\s\S]*?)\n\n## Suggested Ticket Split/);
+  assert.ok(priorityMatch, "expected to find the Priority section");
+  assert.ok(priorityMatch[1].includes("read-only handler wiring and reviewable response model"));
+  assert.ok(priorityMatch[1].includes("medication logging or session logic"));
+
+  const ticketSplitMatch = result.stdout.match(/## Suggested Ticket Split\n([\s\S]*?)\n\n## In Scope/);
+  assert.ok(ticketSplitMatch, "expected to find the Suggested Ticket Split section");
+  assert.ok(ticketSplitMatch[1].includes("Map 'เช็กยาวันนี้' to the orchestrator."));
+  assert.ok(ticketSplitMatch[1].includes("Resolve member context from a seed-level mapping."));
+  assert.ok(ticketSplitMatch[1].includes("Prepare the Codex prompt for the handler wiring ticket only."));
+
+  const acceptanceMatch = result.stdout.match(/## Acceptance Criteria\n([\s\S]*?)\n\n## Regression Tests/);
+  assert.ok(acceptanceMatch, "expected to find the Acceptance Criteria section");
+  assert.ok(acceptanceMatch[1].includes("The LINE-style handler routes 'เช็กยาวันนี้' to the orchestrator."));
+  assert.ok(acceptanceMatch[1].includes("The reply includes medication schedule text and suggested responses."));
+  assert.ok(acceptanceMatch[1].includes("No medication logging is introduced."));
+  assert.ok(acceptanceMatch[1].includes("No session engine is introduced."));
+  assert.ok(acceptanceMatch[1].includes("No inventory or admin UI is introduced."));
+
+  const promptMatch = result.stdout.match(/## Codex-Ready Prompt\n([\s\S]*?)\n\n## Definition of Done/);
+  assert.ok(promptMatch, "expected to find the Codex-Ready Prompt section");
+  assert.ok(promptMatch[1].includes("Create one Codex-ready prompt for wiring the read-only medication schedule handler only."));
+  assert.ok(promptMatch[1].includes("Do not implement medication logging."));
+  assert.ok(promptMatch[1].includes("Format the response model back to LINE text and suggested responses."));
+});
+
 test("CLI returns a clear error when --input is missing a file path", () => {
   const result = spawnSync(
     process.execPath,

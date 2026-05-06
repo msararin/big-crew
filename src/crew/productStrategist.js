@@ -16,6 +16,13 @@ function productStrategist(taskDescription) {
     "bootstrapping a new repo",
     "bootstrap a new repo",
   ]) || heading.includes("repo bootstrap");
+  const isMedicationReadHandler = !isRepositoryContract && !isSchemaValidation && !isRepoBootstrap && (containsAny(taskDescription, [
+    "Medication Read Handler",
+    "read-only medication schedule flow",
+    "thin runtime wiring",
+    "LINE handler",
+    "เช็กยาวันนี้",
+  ]) || heading.includes("medication read handler"));
   const planningTask = containsAny(taskDescription, [
     "priorities",
     "planning/validation",
@@ -44,6 +51,8 @@ function productStrategist(taskDescription) {
       ? "Clarify the medication repository boundary before implementation."
       : isRepoBootstrap
       ? "Define the repo bootstrap goal and protect the standalone boundary."
+      : isMedicationReadHandler
+      ? "Clarify the read-only medication handler wiring before more LINE behavior."
       : planningTask
       ? "Clarify operating priorities before implementation."
       : "Clarify the user value and the smallest useful outcome.",
@@ -53,6 +62,8 @@ function productStrategist(taskDescription) {
       ? "A clear repository contract keeps member-scoped medication schedules and logs safe for future LINE workflows without coupling business logic directly to D1."
       : isRepoBootstrap
       ? "A clean standalone repository boundary keeps maliwan-2 separate from Maliwan 1.0 and Big Crew, so the new system can evolve without inherited coupling."
+      : isMedicationReadHandler
+      ? "A thin LINE handler bridge lets caregivers check today’s medication safely without dragging logging or session behavior into the first runtime slice."
       : planningTask
       ? hasHouseholdBoundary
         ? "Big Crew should decide the first Maliwan 2.0 slice that proves the household/member boundary before implementation spreads."
@@ -64,6 +75,8 @@ function productStrategist(taskDescription) {
       ? "Prioritize the repository contract and method boundaries before any real D1 queries or runtime behavior."
       : isRepoBootstrap
       ? "Prioritize the standalone repo skeleton and architecture boundary before feature implementation."
+      : isMedicationReadHandler
+      ? "Prioritize the read-only handler wiring and reviewable response model before medication logging or session logic."
       : planningTask
       ? hasHouseholdBoundary
         ? "Prioritize D1 validation, household-aware sessions, and member-scoped medication, then defer household-scoped inventory and admin UI."
@@ -75,6 +88,8 @@ function productStrategist(taskDescription) {
       ? "Scope the medication repository contract, method names, and exported interface shape."
       : isRepoBootstrap
       ? "Scope the repo bootstrap slice: initialize the skeleton, README, folder boundaries, and D1 placeholders."
+      : isMedicationReadHandler
+      ? "Scope the LINE handler wiring, seed-level member context resolution, response formatting, and smoke tests."
       : planningTask
       ? hasHouseholdBoundary
         ? "Scope one validation/planning ticket around the household/member boundary and the first SQL-backed data layer."
@@ -86,6 +101,8 @@ function productStrategist(taskDescription) {
       ? "Defer real D1 queries, LINE runtime, inventory, and admin UI."
       : isRepoBootstrap
       ? "Defer runtime feature implementation, inventory, and admin UI."
+      : isMedicationReadHandler
+      ? "Defer medication logging, session/state engine, inventory, admin UI, and deploy config."
       : planningTask
       ? hasHouseholdBoundary
         ? "Defer household-scoped inventory, full implementation, and admin UI."
@@ -147,6 +164,14 @@ function productStrategist(taskDescription) {
           "4. Add contract-shape tests for the repository interface.",
           "5. Prepare the Codex prompt for the contract slice only.",
         ]
+      : isMedicationReadHandler
+      ? [
+          "1. Map 'เช็กยาวันนี้' to the orchestrator.",
+          "2. Resolve member context from a seed-level mapping.",
+          "3. Format the response model back to LINE text and suggested responses.",
+          "4. Add smoke tests for the read-only handler flow.",
+          "5. Prepare the Codex prompt for the handler wiring ticket only.",
+        ]
       : planningTask
       ? hasHouseholdBoundary
         ? [
@@ -173,6 +198,12 @@ function productStrategist(taskDescription) {
           "Keep the repository boundary separate from D1 implementation details.",
           "Use the contract to prepare for future LINE-based medication workflows.",
         ]
+      : isMedicationReadHandler
+      ? [
+          "Keep the handler thin and dependency-injected.",
+          "Use seed-level member mapping only for this slice.",
+          "Do not introduce logging or session behavior yet.",
+        ]
       : [
           "Keep the scope narrow and testable.",
           "Prefer the smallest workflow that still helps the user.",
@@ -183,6 +214,8 @@ function productStrategist(taskDescription) {
       ? "frames this as a repository contract slice that keeps medication schedules and logs safe without coupling product logic to D1."
       : isRepoBootstrap
       ? "frames this as a clean standalone repo boundary so maliwan-2 stays separate from Maliwan 1.0 and Big Crew."
+      : isMedicationReadHandler
+      ? "frames this as the read-only LINE handler wiring slice that keeps the response reviewable."
       : isPriorityReview
       ? "frames the operating priorities so Big Crew can choose the first useful Maliwan 2.0 slice before implementation."
       : planningTask
@@ -193,29 +226,35 @@ function productStrategist(taskDescription) {
         ? "Protect medication safety by validating household/member boundaries before runtime work."
         : isRepositoryContract
         ? "Define the contract before real D1 queries so business logic stays decoupled."
-        : isRepoBootstrap
-        ? "Protect the repo boundary before any feature implementation."
-        : isPriorityReview
-        ? "Optimize for the first useful slice instead of broad feature scope."
-        : "Keep the first slice small and useful.",
+      : isRepoBootstrap
+      ? "Protect the repo boundary before any feature implementation."
+      : isMedicationReadHandler
+      ? "Protect the read-only handler boundary before adding more LINE behavior."
+      : isPriorityReview
+      ? "Optimize for the first useful slice instead of broad feature scope."
+      : "Keep the first slice small and useful.",
       middle: isSchemaValidation
         ? "Rin and Benchawan must not be mixed, and inventory/admin UI stay deferred."
         : isRepositoryContract
         ? "Keep member-scoped medication safe for future LINE workflows."
-        : isRepoBootstrap
-        ? "Keep the new repo separate from Maliwan 1.0 and Big Crew."
-        : isPriorityReview
-        ? "Choose the first useful slice without wasting quota."
-        : "Keep the first slice useful and safe.",
+      : isRepoBootstrap
+      ? "Keep the new repo separate from Maliwan 1.0 and Big Crew."
+      : isMedicationReadHandler
+      ? "Do not add logging or session behavior yet."
+      : isPriorityReview
+      ? "Choose the first useful slice without wasting quota."
+      : "Keep the first slice useful and safe.",
       impact: isSchemaValidation
         ? "The work stays focused on schema validation and seed boundaries."
         : isRepositoryContract
         ? "The work stays focused on a contract-first medication boundary."
-        : isRepoBootstrap
-        ? "The work becomes a clean standalone repo bootstrap plan."
-        : isPriorityReview
-        ? "The work becomes a tighter, quota-aware priority package."
-        : "The output stays small and implementation-ready.",
+      : isRepoBootstrap
+      ? "The work becomes a clean standalone repo bootstrap plan."
+      : isMedicationReadHandler
+      ? "The work stays focused on read-only runtime wiring."
+      : isPriorityReview
+      ? "The work becomes a tighter, quota-aware priority package."
+      : "The output stays small and implementation-ready.",
     },
   };
 }

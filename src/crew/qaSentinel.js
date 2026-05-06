@@ -16,6 +16,13 @@ function qaSentinel(taskDescription, product, architecture) {
     "standalone repository",
     "bootstrap a new repo",
   ]) || heading.includes("repo bootstrap");
+  const isMedicationReadHandler = !isRepositoryContract && !isSchemaValidation && !isRepoBootstrap && (containsAny(taskDescription, [
+    "Medication Read Handler",
+    "read-only medication schedule flow",
+    "thin runtime wiring",
+    "LINE handler",
+    "เช็กยาวันนี้",
+  ]) || heading.includes("medication read handler"));
   const hasHouseholdBoundary = containsAny(taskDescription, [
     "household-aware sessions",
     "member-scoped medication",
@@ -37,6 +44,8 @@ function qaSentinel(taskDescription, product, architecture) {
       ? "Define the minimum regressions that must stay green for the repository contract slice."
       : isRepoBootstrap
       ? "Define the minimum regressions that must stay green for the repo bootstrap slice."
+      : isMedicationReadHandler
+      ? "Define the minimum regressions that must stay green for the read-only medication handler slice."
       : hasHouseholdBoundary
       ? "Define the minimum regressions that must stay green for the D1 validation slice."
       : "Define the minimum regressions that must stay green.",
@@ -46,6 +55,8 @@ function qaSentinel(taskDescription, product, architecture) {
       ? "Prove the repository contract exposes the correct member-scoped medication boundary without binding to D1 implementation details."
       : isRepoBootstrap
       ? "Prove the new repo boots, tests run, the README explains Maliwan 2.0 purpose, and placeholders exist without copying legacy runtime code."
+      : isMedicationReadHandler
+      ? "Prove the LINE-style handler routes 'เช็กยาวันนี้' to the orchestrator, resolves member context, and returns a reviewable response model."
       : hasHouseholdBoundary
       ? "Prove the first Maliwan 2.0 slice keeps the household/member boundary intact and validates the SQL-backed data layer without expanding scope."
       : "Use testable criteria, edge cases, and a regression gate before implementation.",
@@ -77,6 +88,16 @@ function qaSentinel(taskDescription, product, architecture) {
           "No inventory/admin UI files are introduced.",
           "Inventory/admin UI are not implemented.",
         ]
+      : isMedicationReadHandler
+      ? [
+          "The LINE-style handler routes 'เช็กยาวันนี้' to the orchestrator.",
+          "The handler resolves the expected member context from seed-level mapping.",
+          "The reply includes medication schedule text and suggested responses.",
+          "Missing member context returns a safe fallback.",
+          "No medication logging is introduced.",
+          "No session engine is introduced.",
+          "No inventory or admin UI is introduced.",
+        ]
       : hasHouseholdBoundary
       ? [
           "Rin sees only Rin medication schedule.",
@@ -97,6 +118,8 @@ function qaSentinel(taskDescription, product, architecture) {
       ? "requires contract-shape tests and keeps member-scoped medication isolated from D1 details."
       : isRepoBootstrap
       ? "requires smoke tests, placeholder checks, and no copied runtime code."
+      : isMedicationReadHandler
+      ? "requires handler smoke tests and safe fallback coverage."
       : isPriorityReview
       ? "defines the quality gates so Big Crew keeps the first slice safe and testable."
       : hasHouseholdBoundary
@@ -107,29 +130,35 @@ function qaSentinel(taskDescription, product, architecture) {
         ? "Prove schema and seed boundaries before runtime behavior."
         : isRepositoryContract
         ? "Prove the exported contract shape without real D1 queries."
-        : isRepoBootstrap
-        ? "Prove the skeleton imports and placeholders are present."
-        : isPriorityReview
-        ? "Require quality gates before implementation starts."
-        : "Lock the critical behavior with tests first.",
+      : isRepoBootstrap
+      ? "Prove the skeleton imports and placeholders are present."
+      : isMedicationReadHandler
+      ? "Prove the handler wiring and reply model are correct."
+      : isPriorityReview
+      ? "Require quality gates before implementation starts."
+      : "Lock the critical behavior with tests first.",
       middle: isSchemaValidation
         ? "Rin and Benchawan must not cross household boundaries."
         : isRepositoryContract
         ? "The contract must not drift into D1 runtime behavior."
-        : isRepoBootstrap
-        ? "Copied runtime code or missing placeholders would break the bootstrap proof."
-        : isPriorityReview
-        ? "Avoid approving a slice without testable success criteria."
-        : "Do not ship without clear regression coverage.",
+      : isRepoBootstrap
+      ? "Copied runtime code or missing placeholders would break the bootstrap proof."
+      : isMedicationReadHandler
+      ? "The handler must stay read-only and avoid accidental logging paths."
+      : isPriorityReview
+      ? "Avoid approving a slice without testable success criteria."
+      : "Do not ship without clear regression coverage.",
       impact: isSchemaValidation
         ? "The work requires schema, seed, and isolation tests."
         : isRepositoryContract
         ? "The work requires contract-shape tests and identity guards."
-        : isRepoBootstrap
-        ? "The work requires skeleton smoke tests and placeholder checks."
-        : isPriorityReview
-        ? "The work gains a clearer quality gate."
-        : "The package stays testable and bounded.",
+      : isRepoBootstrap
+      ? "The work requires skeleton smoke tests and placeholder checks."
+      : isMedicationReadHandler
+      ? "The work requires handler-level smoke tests and safe fallback checks."
+      : isPriorityReview
+      ? "The work gains a clearer quality gate."
+      : "The package stays testable and bounded.",
     },
   };
 }

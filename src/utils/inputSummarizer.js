@@ -28,6 +28,13 @@ function summarizeMarkdownInput(markdown) {
     "bootstrapping a new repo",
     "bootstrap a new repo",
   ]) || titleLower.includes("repo bootstrap");
+  const isMedicationReadHandler = !isRepositoryContract && !isSchemaValidation && !isRepoBootstrap && (containsAny(text, [
+    "Medication Read Handler",
+    "read-only medication schedule flow",
+    "thin runtime wiring",
+    "LINE handler",
+    "เช็กยาวันนี้",
+  ]) || titleLower.includes("medication read handler"));
   const isPriorityReview = containsAny(taskSection || text, [
     "prioritize first",
     "operating priorities",
@@ -46,6 +53,10 @@ function summarizeMarkdownInput(markdown) {
     sentences.push("Maliwan 2.0 Repo Bootstrap is a planning task for Big Crew's Maliwan 2.0 mission.");
     sentences.push("Create a new standalone maliwan-2 repository separate from Maliwan 1.0 and Big Crew, with a Cloudflare Worker + D1 skeleton and member-scoped medication as the first domain slice.");
     sentences.push("Do not copy runtime code; keep inventory and admin UI deferred.");
+  } else if (isMedicationReadHandler) {
+    sentences.push("Maliwan 2.0 Medication Read Handler is a planning task for Big Crew's Maliwan 2.0 mission.");
+    sentences.push("Wire the read-only medication schedule flow from a LINE-style handler into the orchestrator and return a reviewable response model.");
+    sentences.push("Keep medication logging, session/state engine, inventory, and admin UI deferred; this is a thin runtime wiring task, not full LINE behavior.");
   }
 
   if (isPriorityReview) {
@@ -59,21 +70,21 @@ function summarizeMarkdownInput(markdown) {
     sentences.push(`${title} is a planning task for Big Crew's Maliwan 2.0 mission.`);
   }
 
-  if (!isPriorityReview && !isSchemaValidation && !isRepositoryContract) {
+  if (!isPriorityReview && !isSchemaValidation && !isRepositoryContract && !isMedicationReadHandler) {
     const balanceSentence = buildBalanceSentence(expectedFocusSection, expectedOutputSection, text);
     if (balanceSentence) {
       sentences.push(balanceSentence);
     }
   }
 
-  if (!isRepoBootstrap && !isSchemaValidation && !isRepositoryContract) {
+  if (!isRepoBootstrap && !isSchemaValidation && !isRepositoryContract && !isMedicationReadHandler) {
     const topicSentence = buildTopicSentence(text, isPriorityReview);
     if (topicSentence) {
       sentences.push(topicSentence);
     }
   }
 
-  if (!isPriorityReview && !isRepoBootstrap && !isSchemaValidation && !isRepositoryContract) {
+  if (!isPriorityReview && !isRepoBootstrap && !isSchemaValidation && !isRepositoryContract && !isMedicationReadHandler) {
     const constraintSentence = summarizeConstraints(constraintsSection || text, isPriorityReview);
     if (constraintSentence) {
       sentences.push(constraintSentence);

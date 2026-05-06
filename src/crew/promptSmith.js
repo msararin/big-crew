@@ -16,6 +16,13 @@ function promptSmith(taskDescription, product, architecture) {
     "standalone repository",
     "bootstrap a new repo",
   ]) || heading.includes("repo bootstrap");
+  const isMedicationReadHandler = !isRepositoryContract && !isSchemaValidation && !isRepoBootstrap && (containsAny(taskDescription, [
+    "Medication Read Handler",
+    "read-only medication schedule flow",
+    "thin runtime wiring",
+    "LINE handler",
+    "เช็กยาวันนี้",
+  ]) || heading.includes("medication read handler"));
   const hasHouseholdBoundary = containsAny(taskDescription, [
     "household-aware sessions",
     "member-scoped medication",
@@ -37,6 +44,8 @@ function promptSmith(taskDescription, product, architecture) {
       ? "Turn the repository contract slice into a clear work package request."
       : isRepoBootstrap
       ? "Turn the repo bootstrap slice into a clear work package request."
+      : isMedicationReadHandler
+      ? "Turn the read-only medication handler slice into a clear work package request."
       : hasHouseholdBoundary
       ? "Turn the D1 validation slice into a clear work package request."
       : "Turn the task into a clear work package request.",
@@ -46,6 +55,8 @@ function promptSmith(taskDescription, product, architecture) {
       ? "Create one Codex-ready prompt for defining the medication repository contract only."
       : isRepoBootstrap
       ? "Create one Codex-ready prompt for bootstrapping the new maliwan-2 repository skeleton only."
+      : isMedicationReadHandler
+      ? "Create one Codex-ready prompt for wiring the read-only medication schedule handler only."
       : hasHouseholdBoundary
       ? "Create one Codex-ready validation/planning ticket for the Maliwan 2.0 household/member boundary and the first SQL-backed data layer."
       : "Create a Codex-ready prompt for one scoped ticket only.",
@@ -80,6 +91,16 @@ function promptSmith(taskDescription, product, architecture) {
           "Keep inventory and admin UI deferred.",
           "Add minimal D1 placeholders and seed-data placeholders.",
         ]
+      : isMedicationReadHandler
+      ? [
+          "Implement only the read-only medication handler wiring.",
+          "Do not implement medication logging.",
+          "Do not implement 'กินยาแล้ว' behavior.",
+          "Do not add session/state engine.",
+          "Do not add inventory or admin UI.",
+          "Use fake or seed-level member mapping only.",
+          "Format the response model back to LINE text and suggested responses.",
+        ]
       : hasHouseholdBoundary
       ? [
           "Implement only the D1 validation/planning slice.",
@@ -101,6 +122,8 @@ function promptSmith(taskDescription, product, architecture) {
       ? "scopes the Codex prompt to the repository contract only and keeps runtime work deferred."
       : isRepoBootstrap
       ? "scopes the Codex prompt to repo bootstrap only with no feature implementation."
+      : isMedicationReadHandler
+      ? "scopes the Codex prompt to the read-only handler wiring only."
       : isPriorityReview
       ? "keeps the prompt quota-aware and scoped to one validation/planning ticket."
       : hasHouseholdBoundary
@@ -111,29 +134,35 @@ function promptSmith(taskDescription, product, architecture) {
         ? "Keep the prompt on D1 schema validation only."
         : isRepositoryContract
         ? "Keep the prompt on the repository contract only."
-        : isRepoBootstrap
-        ? "Keep the prompt on repo bootstrap only."
-        : isPriorityReview
-        ? "Keep the prompt narrow and quota-aware."
-        : "Keep the prompt to one scoped ticket.",
+      : isRepoBootstrap
+      ? "Keep the prompt on repo bootstrap only."
+      : isMedicationReadHandler
+      ? "Keep the prompt on read-only handler wiring only."
+      : isPriorityReview
+      ? "Keep the prompt narrow and quota-aware."
+      : "Keep the prompt to one scoped ticket.",
       middle: isSchemaValidation
         ? "Do not expand into runtime, inventory, or admin UI."
         : isRepositoryContract
         ? "Do not ask for real D1 queries."
-        : isRepoBootstrap
-        ? "Do not drift into feature implementation."
-        : isPriorityReview
-        ? "Avoid broad or ambiguous prompts."
-        : "Keep the prompt to one ticket.",
+      : isRepoBootstrap
+      ? "Do not drift into feature implementation."
+      : isMedicationReadHandler
+      ? "Do not drift into medication logging or session behavior."
+      : isPriorityReview
+      ? "Avoid broad or ambiguous prompts."
+      : "Keep the prompt to one ticket.",
       impact: isSchemaValidation
         ? "The output becomes a Ticket 1-only validation prompt."
         : isRepositoryContract
         ? "The output becomes a contract-only implementation prompt."
-        : isRepoBootstrap
-        ? "The output becomes a bootstrap-only implementation prompt."
-        : isPriorityReview
-        ? "The output becomes a quota-aware planning prompt."
-        : "The prompt stays short and implementation-ready.",
+      : isRepoBootstrap
+      ? "The output becomes a bootstrap-only implementation prompt."
+      : isMedicationReadHandler
+      ? "The output becomes a read-only handler wiring prompt."
+      : isPriorityReview
+      ? "The output becomes a quota-aware planning prompt."
+      : "The prompt stays short and implementation-ready.",
     },
   };
 }

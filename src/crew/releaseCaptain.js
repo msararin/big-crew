@@ -16,6 +16,13 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
     "standalone repository",
     "bootstrap a new repo",
   ]) || heading.includes("repo bootstrap");
+  const isMedicationReadHandler = !isRepositoryContract && !isSchemaValidation && !isRepoBootstrap && (containsAny(taskDescription, [
+    "Medication Read Handler",
+    "read-only medication schedule flow",
+    "thin runtime wiring",
+    "LINE handler",
+    "เช็กยาวันนี้",
+  ]) || heading.includes("medication read handler"));
   const hasHouseholdBoundary = containsAny(taskDescription, [
     "household-aware sessions",
     "member-scoped medication",
@@ -37,6 +44,8 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
       ? "Keep the repository contract slice reviewable and recoverable before ship."
       : isRepoBootstrap
       ? "Keep the repo bootstrap slice reviewable and recoverable before ship."
+      : isMedicationReadHandler
+      ? "Keep the read-only handler slice reviewable and recoverable before ship."
       : hasHouseholdBoundary
       ? "Keep the D1 validation slice reviewable and recoverable before ship."
       : "Describe release readiness, reviewability, and recovery before ship.",
@@ -46,6 +55,8 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
       ? "Keep the release small, reviewable, and safe to hand off while the repository boundary is being defined."
       : isRepoBootstrap
       ? "Keep the bootstrap release small, reviewable, and safe to hand off."
+      : isMedicationReadHandler
+      ? "Keep the handler release small, reviewable, and safe to hand off."
       : hasHouseholdBoundary
       ? "Keep the release small, reviewable, and safe to hand off for the first Maliwan 2.0 boundary check."
       : "Keep the release small, reviewable, and recoverable.",
@@ -70,6 +81,13 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
           "Identify the rollback/recovery path before shipping.",
           "Do not ship if repo separation is unproven.",
         ]
+      : isMedicationReadHandler
+      ? [
+          "Treat this as thin runtime wiring before adding more LINE behavior.",
+          "Require tests before merge.",
+          "Identify the rollback/recovery path before shipping.",
+          "Do not ship if the handler flow is not read-only.",
+        ]
       : hasHouseholdBoundary
       ? [
           "Treat this as validation/planning before implementation.",
@@ -87,6 +105,8 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
       ? "requires contract tests and blocks ship if the boundary is too coupled to D1."
       : isRepoBootstrap
       ? "keeps the bootstrap commit small and reviewable, with rollback/recovery in mind."
+      : isMedicationReadHandler
+      ? "keeps the handler wiring small, reviewable, and reversible."
       : isPriorityReview
       ? "keeps readiness before implementation and blocks shipping until the slice is reviewable."
       : hasHouseholdBoundary
@@ -97,29 +117,35 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
         ? "Require proof of household/member isolation before ship."
         : isRepositoryContract
         ? "Require proof that the contract is not too coupled to D1."
-        : isRepoBootstrap
-        ? "Keep the release small and reviewable."
-        : isPriorityReview
-        ? "Do not start implementation until the slice is ready."
-        : "Keep the release safe and recoverable.",
+      : isRepoBootstrap
+      ? "Keep the release small and reviewable."
+      : isMedicationReadHandler
+      ? "Keep the handler wiring small and reviewable."
+      : isPriorityReview
+      ? "Do not start implementation until the slice is ready."
+      : "Keep the release safe and recoverable.",
       middle: isSchemaValidation
         ? "Do not ship if household/member isolation is unproven."
         : isRepositoryContract
         ? "Do not ship if the contract shape is unclear."
-        : isRepoBootstrap
-        ? "Do not ship if repo separation is unproven."
-        : isPriorityReview
-        ? "Do not start implementation until the slice is ready."
-        : "Do not ship without tests and rollback thinking.",
+      : isRepoBootstrap
+      ? "Do not ship if repo separation is unproven."
+      : isMedicationReadHandler
+      ? "Do not ship if the handler flow is not read-only."
+      : isPriorityReview
+      ? "Do not start implementation until the slice is ready."
+      : "Do not ship without tests and rollback thinking.",
       impact: isSchemaValidation
         ? "The work gets a hard release gate for household safety."
         : isRepositoryContract
         ? "The work gets a hard release gate for contract safety."
-        : isRepoBootstrap
-        ? "The work stays small and recoverable."
-        : isPriorityReview
-        ? "The work gains a clear readiness check."
-        : "The package stays ship-safe.",
+      : isRepoBootstrap
+      ? "The work stays small and recoverable."
+      : isMedicationReadHandler
+      ? "The work stays small, reviewable, and reversible."
+      : isPriorityReview
+      ? "The work gains a clear readiness check."
+      : "The package stays ship-safe.",
     },
   };
 }

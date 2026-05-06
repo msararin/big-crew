@@ -16,6 +16,13 @@ function systemArchitect(taskDescription, product) {
     "standalone repository",
     "bootstrap a new repo",
   ]) || heading.includes("repo bootstrap");
+  const isMedicationReadHandler = !isRepositoryContract && !isSchemaValidation && !isRepoBootstrap && (containsAny(taskDescription, [
+    "Medication Read Handler",
+    "read-only medication schedule flow",
+    "thin runtime wiring",
+    "LINE handler",
+    "เช็กยาวันนี้",
+  ]) || heading.includes("medication read handler"));
   const hasHouseholdBoundary = containsAny(taskDescription, [
     "household-aware sessions",
     "member-scoped medication",
@@ -37,6 +44,8 @@ function systemArchitect(taskDescription, product) {
       ? "Define the medication repository boundary and interface contract."
       : isRepoBootstrap
       ? "Define the standalone repo boundary and initial folder structure."
+      : isMedicationReadHandler
+      ? "Define the thin handler-to-orchestrator boundary for read-only medication schedules."
       : hasHouseholdBoundary
       ? "Define the household/member boundary and the first SQL-backed data layer."
       : "Define a simple structure that can be extended later.",
@@ -46,6 +55,8 @@ function systemArchitect(taskDescription, product) {
       ? "Keep the contract separate from D1 implementation details; model household_id, member_id, and line_user_id explicitly."
       : isRepoBootstrap
       ? "Keep maliwan-2 separate from Maliwan 1.0 and Big Crew; avoid copied runtime code; define folder boundaries and a D1 boundary."
+      : isMedicationReadHandler
+      ? "Keep the LINE handler thin, resolve member context outside the orchestrator, and do not add logging or session behavior yet."
       : hasHouseholdBoundary
       ? "Model household_id, member_id, and line_user_id explicitly; keep member-scoped medication isolated; defer household-scoped inventory and admin UI."
       : "Keep responsibilities separated and avoid broad rewrites.",
@@ -67,6 +78,12 @@ function systemArchitect(taskDescription, product) {
           "Create app, orchestrator, domain, infrastructure, and tests folders.",
           "D1 schema placeholders and JSON seed placeholders are acceptable.",
         ]
+      : isMedicationReadHandler
+      ? [
+          "Keep the handler dependency-injected and reviewable.",
+          "Resolve member context from a seed-level mapping only.",
+          "Keep the orchestrator boundary separate from LINE text parsing.",
+        ]
       : hasHouseholdBoundary
       ? [
           "Use Cloudflare D1 as the SQL-backed validation target.",
@@ -83,6 +100,8 @@ function systemArchitect(taskDescription, product) {
       ? "separates the medication repository contract from D1 implementation and keeps the household/member boundary explicit."
       : isRepoBootstrap
       ? "separates the new repo from Maliwan 1.0 and Big Crew, with Worker/D1 placeholders and clear folder boundaries."
+      : isMedicationReadHandler
+      ? "separates the LINE handler wiring from the orchestrator and keeps the reviewable response model explicit."
       : isPriorityReview
       ? "draws the architecture boundary so the first Maliwan 2.0 slice stays small and testable."
       : hasHouseholdBoundary
@@ -93,29 +112,35 @@ function systemArchitect(taskDescription, product) {
         ? "Keep household_id, member_id, and line_user_id explicit behind a D1 repository boundary."
         : isRepositoryContract
         ? "Keep the contract decoupled from D1 and define interfaces first."
-        : isRepoBootstrap
-        ? "Keep maliwan-2 separate from Maliwan 1.0 and Big Crew."
-        : isPriorityReview
-        ? "Keep the first slice small, testable, and reviewable."
-        : "Separate responsibilities before implementation.",
+      : isRepoBootstrap
+      ? "Keep maliwan-2 separate from Maliwan 1.0 and Big Crew."
+      : isMedicationReadHandler
+      ? "Keep the handler thin and the orchestrator boundary explicit."
+      : isPriorityReview
+      ? "Keep the first slice small, testable, and reviewable."
+      : "Separate responsibilities before implementation.",
       middle: isSchemaValidation
         ? "Medication must not mix across households or drift into inventory/admin UI."
         : isRepositoryContract
         ? "The contract must not be bound to real D1 queries."
-        : isRepoBootstrap
-        ? "Copied runtime code and blurred repo boundaries are not allowed."
-        : isPriorityReview
-        ? "Scope stays narrow enough to review."
-        : "Responsibilities stay explicit and narrow.",
+      : isRepoBootstrap
+      ? "Copied runtime code and blurred repo boundaries are not allowed."
+      : isMedicationReadHandler
+      ? "Do not add direct SQL or logging behavior to the handler."
+      : isPriorityReview
+      ? "Scope stays narrow enough to review."
+      : "Responsibilities stay explicit and narrow.",
       impact: isSchemaValidation
         ? "The work centers on D1 schema and seed boundaries."
         : isRepositoryContract
         ? "The work centers on a D1-agnostic repository contract."
-        : isRepoBootstrap
-        ? "The work becomes a clean standalone repo boundary."
-        : isPriorityReview
-        ? "The work becomes a controlled priority package."
-        : "The architecture stays simple and readable.",
+      : isRepoBootstrap
+      ? "The work becomes a clean standalone repo boundary."
+      : isMedicationReadHandler
+      ? "The work becomes a thin handler wiring boundary."
+      : isPriorityReview
+      ? "The work becomes a controlled priority package."
+      : "The architecture stays simple and readable.",
     },
   };
 }

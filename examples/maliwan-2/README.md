@@ -24,10 +24,14 @@ Suggested curated examples:
 - `001-repo-bootstrap-work-package.md`
 - `002-d1-schema-validation-work-package.md`
 - `003-medication-repository-contract-work-package.md`
+- `004-d1-medication-adapter-work-package.md`
+- `005-medication-read-handler-work-package.md`
 
 These examples are enough to show the early Maliwan 2.0 journey:
 - repo bootstrap
 - D1 schema validation
 - medication repository contract
+- D1 medication adapter
+- read-only medication handler
 
 You can add later examples when new milestones are worth preserving.
