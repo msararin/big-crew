@@ -188,6 +188,35 @@ function productStrategist(taskDescription) {
       : planningTask
       ? "clarifies the user value and the smallest useful outcome before implementation."
       : "clarifies the user value and the smallest useful outcome.",
+    trace: {
+      decision: isSchemaValidation
+        ? "Protect medication safety by validating household/member boundaries before runtime work."
+        : isRepositoryContract
+        ? "Define the contract before real D1 queries so business logic stays decoupled."
+        : isRepoBootstrap
+        ? "Protect the repo boundary before any feature implementation."
+        : isPriorityReview
+        ? "Optimize for the first useful slice instead of broad feature scope."
+        : "Keep the first slice small and useful.",
+      middle: isSchemaValidation
+        ? "Rin and Benchawan must not be mixed, and inventory/admin UI stay deferred."
+        : isRepositoryContract
+        ? "Keep member-scoped medication safe for future LINE workflows."
+        : isRepoBootstrap
+        ? "Keep the new repo separate from Maliwan 1.0 and Big Crew."
+        : isPriorityReview
+        ? "Choose the first useful slice without wasting quota."
+        : "Keep the first slice useful and safe.",
+      impact: isSchemaValidation
+        ? "The work stays focused on schema validation and seed boundaries."
+        : isRepositoryContract
+        ? "The work stays focused on a contract-first medication boundary."
+        : isRepoBootstrap
+        ? "The work becomes a clean standalone repo bootstrap plan."
+        : isPriorityReview
+        ? "The work becomes a tighter, quota-aware priority package."
+        : "The output stays small and implementation-ready.",
+    },
   };
 }
 

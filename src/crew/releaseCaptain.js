@@ -92,6 +92,35 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
       : hasHouseholdBoundary
       ? "keeps the validation slice reviewable and blocks shipping until safety is proven."
       : "keeps the change reviewable, tested, and recoverable.",
+    trace: {
+      decision: isSchemaValidation
+        ? "Require proof of household/member isolation before ship."
+        : isRepositoryContract
+        ? "Require proof that the contract is not too coupled to D1."
+        : isRepoBootstrap
+        ? "Keep the release small and reviewable."
+        : isPriorityReview
+        ? "Do not start implementation until the slice is ready."
+        : "Keep the release safe and recoverable.",
+      middle: isSchemaValidation
+        ? "Do not ship if household/member isolation is unproven."
+        : isRepositoryContract
+        ? "Do not ship if the contract shape is unclear."
+        : isRepoBootstrap
+        ? "Do not ship if repo separation is unproven."
+        : isPriorityReview
+        ? "Do not start implementation until the slice is ready."
+        : "Do not ship without tests and rollback thinking.",
+      impact: isSchemaValidation
+        ? "The work gets a hard release gate for household safety."
+        : isRepositoryContract
+        ? "The work gets a hard release gate for contract safety."
+        : isRepoBootstrap
+        ? "The work stays small and recoverable."
+        : isPriorityReview
+        ? "The work gains a clear readiness check."
+        : "The package stays ship-safe.",
+    },
   };
 }
 

@@ -76,6 +76,26 @@ test("CLI synthesizes task summary from markdown input without echoing the whole
   assert.ok(crewSummaryMatch[1].includes("Prompt Smith: keeps the prompt quota-aware"));
   assert.ok(crewSummaryMatch[1].includes("Release Captain: keeps readiness before implementation"));
 
+  const roleTraceMatch = result.stdout.match(/## Crew Role Trace\n([\s\S]*?)\n\n## Product Value/);
+  assert.ok(roleTraceMatch, "expected to find the Crew Role Trace section");
+  assert.ok(roleTraceMatch[1].includes("### Product Strategist"));
+  assert.ok(roleTraceMatch[1].includes("### System Architect"));
+  assert.ok(roleTraceMatch[1].includes("### QA Sentinel"));
+  assert.ok(roleTraceMatch[1].includes("### Prompt Smith"));
+  assert.ok(roleTraceMatch[1].includes("### Release Captain"));
+  assert.ok(roleTraceMatch[1].includes("Decision:"));
+  assert.ok(roleTraceMatch[1].includes("Impact on final package:"));
+  assert.ok(roleTraceMatch[1].includes("Optimize for the first useful slice instead of broad feature scope."));
+  assert.ok(roleTraceMatch[1].includes("Choose the first useful slice without wasting quota."));
+  assert.ok(roleTraceMatch[1].includes("Keep the first slice small, testable, and reviewable."));
+  assert.ok(roleTraceMatch[1].includes("Scope stays narrow enough to review."));
+  assert.ok(roleTraceMatch[1].includes("Require quality gates before implementation starts."));
+  assert.ok(roleTraceMatch[1].includes("Avoid approving a slice without testable success criteria."));
+  assert.ok(roleTraceMatch[1].includes("Keep the prompt narrow and quota-aware."));
+  assert.ok(roleTraceMatch[1].includes("Avoid broad or ambiguous prompts."));
+  assert.ok(roleTraceMatch[1].includes("Do not start implementation until the slice is ready."));
+  assert.ok(roleTraceMatch[1].includes("The work gains a clear readiness check."));
+
   const productValueMatch = result.stdout.match(/## Product Value\n([\s\S]*?)\n\n## Priority/);
   assert.ok(productValueMatch, "expected to find the Product Value section");
   assert.ok(productValueMatch[1].includes("household/member boundary"));
@@ -168,6 +188,26 @@ test("CLI generates repo bootstrap output for a standalone maliwan-2 repository"
   assert.ok(crewSummaryMatch[1].includes("Prompt Smith: scopes the Codex prompt to repo bootstrap only with no feature implementation"));
   assert.ok(crewSummaryMatch[1].includes("Release Captain: keeps the bootstrap commit small and reviewable"));
 
+  const roleTraceMatch = result.stdout.match(/## Crew Role Trace\n([\s\S]*?)\n\n## Product Value/);
+  assert.ok(roleTraceMatch, "expected to find the Crew Role Trace section");
+  assert.ok(roleTraceMatch[1].includes("### Product Strategist"));
+  assert.ok(roleTraceMatch[1].includes("### System Architect"));
+  assert.ok(roleTraceMatch[1].includes("### QA Sentinel"));
+  assert.ok(roleTraceMatch[1].includes("### Prompt Smith"));
+  assert.ok(roleTraceMatch[1].includes("### Release Captain"));
+  assert.ok(roleTraceMatch[1].includes("Decision:"));
+  assert.ok(roleTraceMatch[1].includes("Impact on final package:"));
+  assert.ok(roleTraceMatch[1].includes("Protect the repo boundary before any feature implementation."));
+  assert.ok(roleTraceMatch[1].includes("Keep the new repo separate from Maliwan 1.0 and Big Crew."));
+  assert.ok(roleTraceMatch[1].includes("Copied runtime code and blurred repo boundaries are not allowed."));
+  assert.ok(roleTraceMatch[1].includes("The work becomes a clean standalone repo bootstrap plan."));
+  assert.ok(roleTraceMatch[1].includes("Prove the skeleton imports and placeholders are present."));
+  assert.ok(roleTraceMatch[1].includes("Copied runtime code or missing placeholders would break the bootstrap proof."));
+  assert.ok(roleTraceMatch[1].includes("Keep the prompt on repo bootstrap only."));
+  assert.ok(roleTraceMatch[1].includes("Do not drift into feature implementation."));
+  assert.ok(roleTraceMatch[1].includes("Keep the release small and reviewable."));
+  assert.ok(roleTraceMatch[1].includes("Do not ship if repo separation is unproven."));
+
   const productValueMatch = result.stdout.match(/## Product Value\n([\s\S]*?)\n\n## Priority/);
   assert.ok(productValueMatch, "expected to find the Product Value section");
   assert.ok(productValueMatch[1].includes("clean standalone repository boundary"));
@@ -253,6 +293,22 @@ test("CLI generates schema validation output for the maliwan-2 D1 boundary slice
   assert.ok(crewSummaryMatch[1].includes("QA Sentinel: requires tests for schema tables, seed data, and member-scoped medication isolation"));
   assert.ok(crewSummaryMatch[1].includes("Prompt Smith: scopes the Codex prompt to Ticket 1 only"));
   assert.ok(crewSummaryMatch[1].includes("Release Captain: requires tests to pass and blocks commit if household/member isolation is unproven"));
+
+  const roleTraceMatch = result.stdout.match(/## Crew Role Trace\n([\s\S]*?)\n\n## Product Value/);
+  assert.ok(roleTraceMatch, "expected to find the Crew Role Trace section");
+  assert.ok(roleTraceMatch[1].includes("### Product Strategist"));
+  assert.ok(roleTraceMatch[1].includes("### System Architect"));
+  assert.ok(roleTraceMatch[1].includes("### QA Sentinel"));
+  assert.ok(roleTraceMatch[1].includes("### Prompt Smith"));
+  assert.ok(roleTraceMatch[1].includes("### Release Captain"));
+  assert.ok(roleTraceMatch[1].includes("Decision:"));
+  assert.ok(roleTraceMatch[1].includes("Impact on final package:"));
+  assert.ok(roleTraceMatch[1].includes("Rin and Benchawan must not be mixed, and inventory/admin UI stay deferred."));
+  assert.ok(roleTraceMatch[1].includes("The work stays focused on schema validation and seed boundaries."));
+  assert.ok(roleTraceMatch[1].includes("Medication must not mix across households or drift into inventory/admin UI."));
+  assert.ok(roleTraceMatch[1].includes("The work requires schema, seed, and isolation tests."));
+  assert.ok(roleTraceMatch[1].includes("Do not expand into runtime, inventory, or admin UI."));
+  assert.ok(roleTraceMatch[1].includes("The work gets a hard release gate for household safety."));
 
   const productValueMatch = result.stdout.match(/## Product Value\n([\s\S]*?)\n\n## Priority/);
   assert.ok(productValueMatch, "expected to find the Product Value section");

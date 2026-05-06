@@ -11,6 +11,7 @@ test("buildEngineeringWorkPackage includes the expected sections", () => {
     "Engineering Work Package",
     "Task Summary",
     "Crew Activity Summary",
+    "Crew Role Trace",
     "Product Value",
     "Priority",
     "In Scope",

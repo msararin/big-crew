@@ -106,6 +106,35 @@ function promptSmith(taskDescription, product, architecture) {
       : hasHouseholdBoundary
       ? "scopes a single validation/planning ticket and keeps the prompt narrow."
       : "scopes the task into one Codex-ready prompt.",
+    trace: {
+      decision: isSchemaValidation
+        ? "Keep the prompt on D1 schema validation only."
+        : isRepositoryContract
+        ? "Keep the prompt on the repository contract only."
+        : isRepoBootstrap
+        ? "Keep the prompt on repo bootstrap only."
+        : isPriorityReview
+        ? "Keep the prompt narrow and quota-aware."
+        : "Keep the prompt to one scoped ticket.",
+      middle: isSchemaValidation
+        ? "Do not expand into runtime, inventory, or admin UI."
+        : isRepositoryContract
+        ? "Do not ask for real D1 queries."
+        : isRepoBootstrap
+        ? "Do not drift into feature implementation."
+        : isPriorityReview
+        ? "Avoid broad or ambiguous prompts."
+        : "Keep the prompt to one ticket.",
+      impact: isSchemaValidation
+        ? "The output becomes a Ticket 1-only validation prompt."
+        : isRepositoryContract
+        ? "The output becomes a contract-only implementation prompt."
+        : isRepoBootstrap
+        ? "The output becomes a bootstrap-only implementation prompt."
+        : isPriorityReview
+        ? "The output becomes a quota-aware planning prompt."
+        : "The prompt stays short and implementation-ready.",
+    },
   };
 }
 

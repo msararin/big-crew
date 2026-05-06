@@ -12,6 +12,13 @@ function renderWorkPackage({ taskDescription, product, architecture, qa, prompt,
     `- Prompt Smith: ${prompt.activitySummary || prompt.promptStatement || prompt.objective}`,
     `- Release Captain: ${release.activitySummary || release.releaseStatement || release.objective}`,
     "",
+    `## Crew Role Trace`,
+    renderRoleTrace("Product Strategist", "Product value / user risk", product.trace),
+    renderRoleTrace("System Architect", "Boundary enforced", architecture.trace),
+    renderRoleTrace("QA Sentinel", "Test risk / regression risk", qa.trace),
+    renderRoleTrace("Prompt Smith", "Scope compression / Codex guardrail", prompt.trace),
+    renderRoleTrace("Release Captain", "Release gate / readiness check", release.trace),
+    "",
     `## Product Value`,
     `- ${product.valueStatement || product.objective}`,
     ...product.notes.map((note) => `- ${note}`),
@@ -75,6 +82,15 @@ function renderWorkPackage({ taskDescription, product, architecture, qa, prompt,
     `## Notes`,
     `- No external AI API is used in this MVP.`,
     `- This package is rule-based and template-based only.`,
+  ].join("\n");
+}
+
+function renderRoleTrace(roleName, middleLabel, trace = {}) {
+  return [
+    `### ${roleName}`,
+    `- Decision: ${trace.decision || "n/a"}`,
+    `- ${middleLabel}: ${trace.middle || "n/a"}`,
+    `- Impact on final package: ${trace.impact || "n/a"}`,
   ].join("\n");
 }
 

@@ -88,6 +88,35 @@ function systemArchitect(taskDescription, product) {
       : hasHouseholdBoundary
       ? "defines the household/member boundary and the first SQL-backed data layer."
       : "keeps the architecture boundaries clear and simple.",
+    trace: {
+      decision: isSchemaValidation
+        ? "Keep household_id, member_id, and line_user_id explicit behind a D1 repository boundary."
+        : isRepositoryContract
+        ? "Keep the contract decoupled from D1 and define interfaces first."
+        : isRepoBootstrap
+        ? "Keep maliwan-2 separate from Maliwan 1.0 and Big Crew."
+        : isPriorityReview
+        ? "Keep the first slice small, testable, and reviewable."
+        : "Separate responsibilities before implementation.",
+      middle: isSchemaValidation
+        ? "Medication must not mix across households or drift into inventory/admin UI."
+        : isRepositoryContract
+        ? "The contract must not be bound to real D1 queries."
+        : isRepoBootstrap
+        ? "Copied runtime code and blurred repo boundaries are not allowed."
+        : isPriorityReview
+        ? "Scope stays narrow enough to review."
+        : "Responsibilities stay explicit and narrow.",
+      impact: isSchemaValidation
+        ? "The work centers on D1 schema and seed boundaries."
+        : isRepositoryContract
+        ? "The work centers on a D1-agnostic repository contract."
+        : isRepoBootstrap
+        ? "The work becomes a clean standalone repo boundary."
+        : isPriorityReview
+        ? "The work becomes a controlled priority package."
+        : "The architecture stays simple and readable.",
+    },
   };
 }
 

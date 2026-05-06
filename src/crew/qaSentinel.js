@@ -102,6 +102,35 @@ function qaSentinel(taskDescription, product, architecture) {
       : hasHouseholdBoundary
       ? "defines the quality gates for the household/member D1 validation slice."
       : "defines the minimum regressions that must stay green.",
+    trace: {
+      decision: isSchemaValidation
+        ? "Prove schema and seed boundaries before runtime behavior."
+        : isRepositoryContract
+        ? "Prove the exported contract shape without real D1 queries."
+        : isRepoBootstrap
+        ? "Prove the skeleton imports and placeholders are present."
+        : isPriorityReview
+        ? "Require quality gates before implementation starts."
+        : "Lock the critical behavior with tests first.",
+      middle: isSchemaValidation
+        ? "Rin and Benchawan must not cross household boundaries."
+        : isRepositoryContract
+        ? "The contract must not drift into D1 runtime behavior."
+        : isRepoBootstrap
+        ? "Copied runtime code or missing placeholders would break the bootstrap proof."
+        : isPriorityReview
+        ? "Avoid approving a slice without testable success criteria."
+        : "Do not ship without clear regression coverage.",
+      impact: isSchemaValidation
+        ? "The work requires schema, seed, and isolation tests."
+        : isRepositoryContract
+        ? "The work requires contract-shape tests and identity guards."
+        : isRepoBootstrap
+        ? "The work requires skeleton smoke tests and placeholder checks."
+        : isPriorityReview
+        ? "The work gains a clearer quality gate."
+        : "The package stays testable and bounded.",
+    },
   };
 }
 
