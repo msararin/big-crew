@@ -13,6 +13,14 @@ function renderWorkPackage({ taskDescription, product, architecture, qa, prompt,
     `- ${product.priorityStatement || product.notes[1]}`,
     `- ${product.deferStatement || product.notes[2]}`,
     "",
+    `## Suggested Ticket Split`,
+    ...(product.ticketSplitStatements && product.ticketSplitStatements.length > 0
+      ? product.ticketSplitStatements.map((statement) => `- ${statement}`)
+      : [
+          `- Split the work into one scoped implementation ticket.`,
+          `- Keep the validation slice small and reviewable.`,
+        ]),
+    "",
     `## In Scope`,
     `- ${product.inScopeStatement || product.notes[1]}`,
     `- ${architecture.boundaryStatement || architecture.notes[1]}`,
@@ -23,6 +31,11 @@ function renderWorkPackage({ taskDescription, product, architecture, qa, prompt,
     "",
     `## Architecture Impact`,
     `- ${architecture.objective}`,
+    ...(
+      architecture.boundaryStatement
+        ? [`- ${architecture.boundaryStatement}`]
+        : []
+    ),
     ...architecture.notes.map((note) => `- ${note}`),
     "",
     `## Acceptance Criteria`,
@@ -31,8 +44,7 @@ function renderWorkPackage({ taskDescription, product, architecture, qa, prompt,
     ...qa.notes.map((note) => `- ${note}`),
     "",
     `## Regression Tests`,
-    `- ${qa.notes[0]}`,
-    `- ${qa.notes[1]}`,
+    ...qa.notes.map((note) => `- ${note}`),
     "",
     `## Codex-Ready Prompt`,
     `- ${prompt.objective}`,

@@ -19,13 +19,20 @@ function summarizeMarkdownInput(markdown) {
 
   if (isPriorityReview) {
     sentences.push("Big Crew needs to clarify its operating priorities before helping build Maliwan 2.0.");
+    const boundarySentence = buildBoundarySentence(text);
+    if (boundarySentence) {
+      sentences.push(boundarySentence);
+    }
+    sentences.push("Keep it as one scoped validation/planning ticket.");
   } else if (title) {
     sentences.push(`${title} is a planning task for Big Crew's Maliwan 2.0 mission.`);
   }
 
-  const balanceSentence = buildBalanceSentence(expectedFocusSection, expectedOutputSection, text);
-  if (balanceSentence) {
-    sentences.push(balanceSentence);
+  if (!isPriorityReview) {
+    const balanceSentence = buildBalanceSentence(expectedFocusSection, expectedOutputSection, text);
+    if (balanceSentence) {
+      sentences.push(balanceSentence);
+    }
   }
 
   const topicSentence = buildTopicSentence(text, isPriorityReview);
@@ -33,9 +40,11 @@ function summarizeMarkdownInput(markdown) {
     sentences.push(topicSentence);
   }
 
-  const constraintSentence = summarizeConstraints(constraintsSection || text, isPriorityReview);
-  if (constraintSentence) {
-    sentences.push(constraintSentence);
+  if (!isPriorityReview) {
+    const constraintSentence = summarizeConstraints(constraintsSection || text, isPriorityReview);
+    if (constraintSentence) {
+      sentences.push(constraintSentence);
+    }
   }
 
   return dedupeSentences(sentences).join(" ");
@@ -122,6 +131,33 @@ function joinParts(parts) {
   }
 
   return `${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}`;
+}
+
+function buildBoundarySentence(text) {
+  const terms = [];
+
+  if (containsAny(text, ["household-aware sessions"])) {
+    terms.push("household-aware sessions");
+  }
+  if (containsAny(text, ["member-scoped medication"])) {
+    terms.push("member-scoped medication");
+  }
+  if (containsAny(text, ["Cloudflare D1", "D1", "SQL-backed data layer"])) {
+    terms.push("Cloudflare D1");
+  }
+  if (containsAny(text, ["household-scoped inventory"])) {
+    terms.push("household-scoped inventory deferred");
+  }
+  if (containsAny(text, ["admin UI"])) {
+    terms.push("admin UI deferred");
+  }
+
+  if (terms.length === 0) {
+    return "";
+  }
+
+  const sentence = `The first slice should validate the household/member boundary with ${joinParts(terms)}.`;
+  return sentence;
 }
 
 function buildBalanceSentence(expectedFocusSection, expectedOutputSection, text) {
