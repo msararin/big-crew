@@ -11,20 +11,29 @@ function summarizeMarkdownInput(markdown) {
   const constraintsSection = extractSection(text, "Constraints");
   const expectedOutputSection = extractSection(text, "Expected Output");
   const sentences = [];
+  const titleLower = title.toLowerCase();
+  const isSchemaValidation = containsAny(text, [
+    "D1 Schema Validation",
+    "schema validation",
+    "SQL-backed data boundary",
+  ]) || titleLower.includes("d1 schema validation");
   const isRepoBootstrap = containsAny(text, [
     "Repo Bootstrap",
     "repo bootstrap",
-    "standalone repository",
+    "bootstrapping a new repo",
     "bootstrap a new repo",
-    "maliwan-2",
-  ]);
+  ]) || titleLower.includes("repo bootstrap");
   const isPriorityReview = containsAny(taskSection || text, [
     "prioritize first",
     "operating priorities",
     "priority mindset",
   ]);
 
-  if (isRepoBootstrap) {
+  if (isSchemaValidation) {
+    sentences.push("Maliwan 2.0 D1 Schema Validation is a planning task for Big Crew's Maliwan 2.0 mission.");
+    sentences.push("Validate the first SQL-backed data boundary for a senior-friendly household-aware care workflow, using household_id, member_id, and line_user_id to keep member-scoped medication safe for the Malaithong household with Rin and Benchawan.");
+    sentences.push("Keep household-scoped inventory and admin UI deferred; this is a schema validation task, not runtime implementation.");
+  } else if (isRepoBootstrap) {
     sentences.push("Maliwan 2.0 Repo Bootstrap is a planning task for Big Crew's Maliwan 2.0 mission.");
     sentences.push("Create a new standalone maliwan-2 repository separate from Maliwan 1.0 and Big Crew, with a Cloudflare Worker + D1 skeleton and member-scoped medication as the first domain slice.");
     sentences.push("Do not copy runtime code; keep inventory and admin UI deferred.");
@@ -41,21 +50,21 @@ function summarizeMarkdownInput(markdown) {
     sentences.push(`${title} is a planning task for Big Crew's Maliwan 2.0 mission.`);
   }
 
-  if (!isPriorityReview) {
+  if (!isPriorityReview && !isSchemaValidation) {
     const balanceSentence = buildBalanceSentence(expectedFocusSection, expectedOutputSection, text);
     if (balanceSentence) {
       sentences.push(balanceSentence);
     }
   }
 
-  if (!isRepoBootstrap) {
+  if (!isRepoBootstrap && !isSchemaValidation) {
     const topicSentence = buildTopicSentence(text, isPriorityReview);
     if (topicSentence) {
       sentences.push(topicSentence);
     }
   }
 
-  if (!isPriorityReview && !isRepoBootstrap) {
+  if (!isPriorityReview && !isRepoBootstrap && !isSchemaValidation) {
     const constraintSentence = summarizeConstraints(constraintsSection || text, isPriorityReview);
     if (constraintSentence) {
       sentences.push(constraintSentence);
