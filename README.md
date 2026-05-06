@@ -29,9 +29,17 @@ Given one task description, the CLI generates a structured markdown package with
 
 ## Getting started
 
+Direct task input:
+
 ```bash
 npm install
 npm run generate -- "D1 spike: validate inventory-aware menu routing"
+```
+
+File input for longer tasks:
+
+```bash
+npm run generate -- --input examples/input-d1-spike.md
 ```
 
 Or use the binary directly:
