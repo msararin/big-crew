@@ -60,10 +60,15 @@ test("CLI synthesizes task summary from markdown input without echoing the whole
   assert.ok(!taskSummary.includes("## Context"));
   assert.ok(!taskSummary.includes("## Task"));
   assert.ok(taskSummary.length < 450);
+  assert.equal(
+    (result.stdout.match(/Big Crew needs to clarify its operating priorities before helping build Maliwan 2\.0\./g) || []).length,
+    1
+  );
 
   const productValueMatch = result.stdout.match(/## Product Value\n([\s\S]*?)\n\n## Priority/);
   assert.ok(productValueMatch, "expected to find the Product Value section");
   assert.ok(productValueMatch[1].includes("help decide the right first Maliwan 2.0 slice"));
+  assert.ok(!productValueMatch[1].includes("Big Crew needs to clarify its operating priorities before helping build Maliwan 2.0."));
 
   const priorityMatch = result.stdout.match(/## Priority\n([\s\S]*?)\n\n## In Scope/);
   assert.ok(priorityMatch, "expected to find the Priority section");

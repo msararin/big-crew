@@ -1,0 +1,205 @@
+function summarizeMarkdownInput(markdown) {
+  const text = String(markdown || "").trim();
+
+  if (!text) {
+    return "";
+  }
+
+  const title = extractFirstHeading(text);
+  const taskSection = extractSection(text, "Task");
+  const expectedFocusSection = extractSection(text, "Expected Focus");
+  const constraintsSection = extractSection(text, "Constraints");
+  const expectedOutputSection = extractSection(text, "Expected Output");
+  const sentences = [];
+  const isPriorityReview = containsAny(taskSection || text, [
+    "prioritize first",
+    "operating priorities",
+    "priority mindset",
+  ]);
+
+  if (isPriorityReview) {
+    sentences.push("Big Crew needs to clarify its operating priorities before helping build Maliwan 2.0.");
+  } else if (title) {
+    sentences.push(`${title} is a planning task for Big Crew's Maliwan 2.0 mission.`);
+  }
+
+  const balanceSentence = buildBalanceSentence(expectedFocusSection, expectedOutputSection, text);
+  if (balanceSentence) {
+    sentences.push(balanceSentence);
+  }
+
+  const topicSentence = buildTopicSentence(text, isPriorityReview);
+  if (topicSentence) {
+    sentences.push(topicSentence);
+  }
+
+  const constraintSentence = summarizeConstraints(constraintsSection || text, isPriorityReview);
+  if (constraintSentence) {
+    sentences.push(constraintSentence);
+  }
+
+  return dedupeSentences(sentences).join(" ");
+}
+
+function extractFirstHeading(text) {
+  const match = text.match(/^#\s+(.+)$/m);
+  return match ? match[1].trim() : "";
+}
+
+function extractSection(text, sectionName) {
+  const lines = text.split(/\r?\n/);
+  const header = `## ${sectionName}`;
+  let collecting = false;
+  const collected = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (trimmed === header) {
+      collecting = true;
+      continue;
+    }
+
+    if (collecting && trimmed.startsWith("## ")) {
+      break;
+    }
+
+    if (collecting) {
+      collected.push(line);
+    }
+  }
+
+  return collected.join("\n").trim();
+}
+
+function summarizeConstraints(text) {
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const matches = [];
+  const keywords = [
+    ["Do not jump into full implementation.", "avoid full implementation"],
+    ["Do not migrate the whole system.", "avoid whole-system migration"],
+    ["Do not build admin UI yet.", "avoid admin UI"],
+    ["Do not over-engineer.", "avoid over-engineering"],
+    ["Prefer small vertical slices.", "prefer small vertical slices"],
+    ["Prefer evidence over assumptions.", "prefer evidence over assumptions"],
+    ["Keep Maliwan 2.0 portfolio-first, production-later.", "keep Maliwan 2.0 portfolio-first, production-later"],
+    ["Do not produce a broad Codex prompt.", "avoid broad Codex prompts"],
+  ];
+
+  for (const [needle, phrase] of keywords) {
+    if (lines.some((line) => line.includes(needle))) {
+      matches.push(phrase);
+    }
+  }
+
+  if (matches.length === 0) {
+    return "";
+  }
+
+  const planningPrefix = "Keep the slice small";
+  if (matches.length === 0) {
+    return "";
+  }
+
+  return `${planningPrefix}: ${joinParts(matches.slice(0, 4))}.`;
+}
+
+function containsAny(text, keywords) {
+  return keywords.some((keyword) => text.includes(keyword));
+}
+
+function joinParts(parts) {
+  if (parts.length <= 1) {
+    return parts[0] || "";
+  }
+
+  if (parts.length === 2) {
+    return `${parts[0]} and ${parts[1]}`;
+  }
+
+  return `${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}`;
+}
+
+function buildBalanceSentence(expectedFocusSection, expectedOutputSection, text) {
+  const haystack = [expectedFocusSection, expectedOutputSection, text].join("\n");
+  const terms = [];
+
+  if (containsAny(haystack, ["product value"])) {
+    terms.push("product value");
+  }
+  if (containsAny(haystack, ["quality"])) {
+    terms.push("quality");
+  }
+  if (containsAny(haystack, ["budget / Codex quota efficiency", "quota efficiency", "Codex quota efficiency"])) {
+    terms.push("Codex quota efficiency");
+  }
+  if (containsAny(haystack, ["architecture learning"])) {
+    terms.push("architecture learning");
+  }
+  if (containsAny(haystack, ["scope control"])) {
+    terms.push("scope control");
+  }
+  if (containsAny(haystack, ["regression safety"])) {
+    terms.push("regression safety");
+  }
+  if (containsAny(haystack, ["release readiness"])) {
+    terms.push("release readiness");
+  }
+
+  if (terms.length === 0) {
+    return "";
+  }
+
+  return `The work should balance ${joinParts(terms)}.`;
+}
+
+function buildTopicSentence(text, isPriorityReview) {
+  if (isPriorityReview) {
+    return "This is a planning/validation task, not an implementation task.";
+  }
+
+  const topicParts = [];
+  if (containsAny(text, ["Cloudflare D1", "D1", "SQL-backed data layer"])) {
+    topicParts.push("validate Cloudflare D1 as the first SQL-backed data layer");
+  }
+  if (containsAny(text, ["member-scoped medication", "medication"])) {
+    topicParts.push("start with member-scoped medication workflows");
+  }
+  if (containsAny(text, ["household-scoped inventory", "inventory"])) {
+    topicParts.push("keep household-scoped inventory separate");
+  }
+  if (containsAny(text, ["Google Sheets"])) {
+    topicParts.push("move away from Google Sheets");
+  }
+
+  if (topicParts.length === 0) {
+    return "";
+  }
+
+  return `The work should focus on ${joinParts(topicParts)}.`;
+}
+
+function dedupeSentences(sentences) {
+  const seen = new Set();
+  const result = [];
+
+  for (const sentence of sentences) {
+    const normalized = sentence.trim();
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+
+    seen.add(normalized);
+    result.push(normalized);
+  }
+
+  return result;
+}
+
+module.exports = {
+  summarizeMarkdownInput,
+};
