@@ -1,10 +1,25 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
 const { spawnSync } = require("node:child_process");
 const path = require("node:path");
 
+const repoRoot = path.resolve(__dirname, "..");
+const outputFilePath = path.join(repoRoot, "output", "engineering-work-package.md");
+
+function removeOutputFile() {
+  fs.rmSync(path.join(repoRoot, "output"), { recursive: true, force: true });
+}
+
+test.beforeEach(() => {
+  removeOutputFile();
+});
+
+test.after(() => {
+  removeOutputFile();
+});
+
 test("CLI supports --input file path", () => {
-  const repoRoot = path.resolve(__dirname, "..");
   const result = spawnSync(
     process.execPath,
     ["src/index.js", "--input", "examples/input-d1-spike.md"],
@@ -18,10 +33,14 @@ test("CLI supports --input file path", () => {
   assert.ok(result.stdout.includes("Big Crew Engineering Work Package"));
   assert.ok(result.stdout.includes("Build a small, safe proof of concept"));
   assert.ok(!result.stdout.includes("--input examples/input-d1-spike.md"));
+  assert.ok(fs.existsSync(outputFilePath));
+
+  const fileContents = fs.readFileSync(outputFilePath, "utf8");
+  assert.ok(fileContents.includes("Big Crew Engineering Work Package"));
+  assert.ok(fileContents.includes("Build a small, safe proof of concept"));
 });
 
 test("CLI returns a clear error when --input is missing a file path", () => {
-  const repoRoot = path.resolve(__dirname, "..");
   const result = spawnSync(
     process.execPath,
     ["src/index.js", "--input"],
@@ -36,7 +55,6 @@ test("CLI returns a clear error when --input is missing a file path", () => {
 });
 
 test("CLI returns a clear error when --input file does not exist", () => {
-  const repoRoot = path.resolve(__dirname, "..");
   const result = spawnSync(
     process.execPath,
     ["src/index.js", "--input", "examples/does-not-exist.md"],

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-const { readFile } = require("node:fs/promises");
+const { mkdir, readFile, writeFile } = require("node:fs/promises");
+const path = require("node:path");
 const { buildEngineeringWorkPackage } = require("./orchestrator/engineeringOrchestrator");
+const OUTPUT_FILE_PATH = path.join(process.cwd(), "output", "engineering-work-package.md");
 
 async function main() {
   try {
@@ -22,6 +24,7 @@ async function main() {
     }
 
     const workPackage = buildEngineeringWorkPackage(task);
+    await writeWorkPackageOutput(workPackage);
     process.stdout.write(`${workPackage}\n`);
   } catch (error) {
     process.stderr.write(`Error: ${error.message || String(error)}\n`);
@@ -50,6 +53,11 @@ async function readTaskFromArgs(args) {
   }
 
   return args.join(" ").trim();
+}
+
+async function writeWorkPackageOutput(workPackage) {
+  await mkdir(path.dirname(OUTPUT_FILE_PATH), { recursive: true });
+  await writeFile(OUTPUT_FILE_PATH, `${workPackage}\n`, "utf8");
 }
 
 main();
