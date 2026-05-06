@@ -1,11 +1,11 @@
 function releaseCaptain(taskDescription, product, architecture, qa) {
   return {
     role: "Release Captain",
-    objective: "Describe a safe, shippable checkpoint and handoff.",
-    releaseStatement: "Require tests, clear scope, and recovery thinking before ship.",
+    objective: "Describe release readiness, reviewability, and recovery before ship.",
+    releaseStatement: "Keep the release small, reviewable, and recoverable.",
     notes: [
-      "Keep release steps explicit.",
       "Require tests before merge.",
+      "Identify the rollback path before shipping.",
     ],
   };
 }
