@@ -11,11 +11,24 @@ function summarizeMarkdownInput(markdown) {
   const constraintsSection = extractSection(text, "Constraints");
   const expectedOutputSection = extractSection(text, "Expected Output");
   const sentences = [];
+  const isRepoBootstrap = containsAny(text, [
+    "Repo Bootstrap",
+    "repo bootstrap",
+    "standalone repository",
+    "bootstrap a new repo",
+    "maliwan-2",
+  ]);
   const isPriorityReview = containsAny(taskSection || text, [
     "prioritize first",
     "operating priorities",
     "priority mindset",
   ]);
+
+  if (isRepoBootstrap) {
+    sentences.push("Maliwan 2.0 Repo Bootstrap is a planning task for Big Crew's Maliwan 2.0 mission.");
+    sentences.push("Create a new standalone maliwan-2 repository separate from Maliwan 1.0 and Big Crew, with a Cloudflare Worker + D1 skeleton and member-scoped medication as the first domain slice.");
+    sentences.push("Do not copy runtime code; keep inventory and admin UI deferred.");
+  }
 
   if (isPriorityReview) {
     sentences.push("Big Crew needs to clarify its operating priorities before helping build Maliwan 2.0.");
@@ -35,12 +48,14 @@ function summarizeMarkdownInput(markdown) {
     }
   }
 
-  const topicSentence = buildTopicSentence(text, isPriorityReview);
-  if (topicSentence) {
-    sentences.push(topicSentence);
+  if (!isRepoBootstrap) {
+    const topicSentence = buildTopicSentence(text, isPriorityReview);
+    if (topicSentence) {
+      sentences.push(topicSentence);
+    }
   }
 
-  if (!isPriorityReview) {
+  if (!isPriorityReview && !isRepoBootstrap) {
     const constraintSentence = summarizeConstraints(constraintsSection || text, isPriorityReview);
     if (constraintSentence) {
       sentences.push(constraintSentence);

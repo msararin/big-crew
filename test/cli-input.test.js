@@ -131,6 +131,82 @@ test("CLI synthesizes task summary from markdown input without echoing the whole
   assert.ok(releaseMatch[1].includes("Do not ship if household/member isolation is unproven"));
 });
 
+test("CLI generates repo bootstrap output for a standalone maliwan-2 repository", () => {
+  const result = spawnSync(
+    process.execPath,
+    ["src/index.js", "--input", "inputs/maliwan-2/repo-bootstrap.md"],
+    {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }
+  );
+
+  assert.equal(result.status, 0);
+
+  const taskSummaryMatch = result.stdout.match(/## Task Summary\n([\s\S]*?)\n\n## Product Value/);
+  assert.ok(taskSummaryMatch, "expected to find the Task Summary section");
+  assert.ok(taskSummaryMatch[1].includes("Maliwan 2.0 Repo Bootstrap"));
+  assert.ok(taskSummaryMatch[1].includes("standalone maliwan-2 repository"));
+  assert.ok(taskSummaryMatch[1].includes("Cloudflare Worker + D1 skeleton"));
+  assert.ok(taskSummaryMatch[1].includes("member-scoped medication"));
+  assert.ok(taskSummaryMatch[1].includes("Do not copy runtime code"));
+
+  const productValueMatch = result.stdout.match(/## Product Value\n([\s\S]*?)\n\n## Priority/);
+  assert.ok(productValueMatch, "expected to find the Product Value section");
+  assert.ok(productValueMatch[1].includes("clean standalone repository boundary"));
+  assert.ok(productValueMatch[1].includes("separate from Maliwan 1.0 and Big Crew"));
+
+  const priorityMatch = result.stdout.match(/## Priority\n([\s\S]*?)\n\n## Suggested Ticket Split/);
+  assert.ok(priorityMatch, "expected to find the Priority section");
+  assert.ok(priorityMatch[1].includes("standalone repo skeleton and architecture boundary"));
+  assert.ok(priorityMatch[1].includes("Defer runtime feature implementation, inventory, and admin UI"));
+
+  const ticketSplitMatch = result.stdout.match(/## Suggested Ticket Split\n([\s\S]*?)\n\n## In Scope/);
+  assert.ok(ticketSplitMatch, "expected to find the Suggested Ticket Split section");
+  assert.ok(ticketSplitMatch[1].includes("Initialize the standalone maliwan-2 repo structure."));
+  assert.ok(ticketSplitMatch[1].includes("Create a README with product and architecture intent."));
+  assert.ok(ticketSplitMatch[1].includes("Create a minimal Node / Cloudflare Worker project skeleton."));
+  assert.ok(ticketSplitMatch[1].includes("Add folder boundaries for app, orchestrator, domain, infrastructure, and tests."));
+  assert.ok(ticketSplitMatch[1].includes("Add a D1 schema draft or migration placeholder."));
+  assert.ok(ticketSplitMatch[1].includes("Add a JSON seed data placeholder for one household with Rin and Benchawan."));
+  assert.ok(ticketSplitMatch[1].includes("Add a smoke test for the project skeleton."));
+  assert.ok(ticketSplitMatch[1].includes("Prepare the Codex prompt for repo bootstrap only."));
+
+  const architectureMatch = result.stdout.match(/## Architecture Impact\n([\s\S]*?)\n\n## Acceptance Criteria/);
+  assert.ok(architectureMatch, "expected to find the Architecture Impact section");
+  assert.ok(architectureMatch[1].includes("repo boundary"));
+  assert.ok(architectureMatch[1].includes("folder boundaries"));
+  assert.ok(architectureMatch[1].includes("D1 boundary"));
+  assert.ok(architectureMatch[1].includes("repository pattern"));
+  assert.ok(architectureMatch[1].includes("copied runtime code"));
+
+  const acceptanceMatch = result.stdout.match(/## Acceptance Criteria\n([\s\S]*?)\n\n## Regression Tests/);
+  assert.ok(acceptanceMatch, "expected to find the Acceptance Criteria section");
+  assert.ok(acceptanceMatch[1].includes("npm test passes"));
+  assert.ok(acceptanceMatch[1].includes("README explains Maliwan 2.0 purpose"));
+  assert.ok(acceptanceMatch[1].includes("No Maliwan 1.0 runtime code is copied."));
+  assert.ok(acceptanceMatch[1].includes("No Big Crew code is copied."));
+  assert.ok(acceptanceMatch[1].includes("D1 schema placeholder exists"));
+  assert.ok(acceptanceMatch[1].includes("Inventory/admin UI are not implemented."));
+
+  const regressionMatch = result.stdout.match(/## Regression Tests\n([\s\S]*?)\n\n## Codex-Ready Prompt/);
+  assert.ok(regressionMatch, "expected to find the Regression Tests section");
+  assert.ok(regressionMatch[1].includes("npm test passes"));
+  assert.ok(regressionMatch[1].includes("Skeleton imports do not fail."));
+  assert.ok(regressionMatch[1].includes("D1 schema placeholder exists."));
+  assert.ok(regressionMatch[1].includes("Seed data placeholder exists."));
+  assert.ok(regressionMatch[1].includes("No inventory/admin UI files are introduced."));
+
+  const promptMatch = result.stdout.match(/## Codex-Ready Prompt\n([\s\S]*?)\n\n## Definition of Done/);
+  assert.ok(promptMatch, "expected to find the Codex-Ready Prompt section");
+  assert.ok(promptMatch[1].includes("Turn the repo bootstrap slice into a clear work package request."));
+  assert.ok(promptMatch[1].includes("Create one Codex-ready prompt for bootstrapping the new maliwan-2 repository skeleton only."));
+  assert.ok(promptMatch[1].includes("Create the standalone repo skeleton only."));
+  assert.ok(promptMatch[1].includes("Do not implement medication runtime logic yet."));
+  assert.ok(promptMatch[1].includes("Do not copy Maliwan 1.0 runtime code."));
+  assert.ok(promptMatch[1].includes("Do not copy Big Crew runtime code."));
+});
+
 test("CLI returns a clear error when --input is missing a file path", () => {
   const result = spawnSync(
     process.execPath,

@@ -26,8 +26,12 @@ function renderWorkPackage({ taskDescription, product, architecture, qa, prompt,
     `- ${architecture.boundaryStatement || architecture.notes[1]}`,
     "",
     `## Out of Scope`,
-    `- ${product.deferStatement || "Complex orchestration"}`,
-    `- External AI API integration`,
+    ...(product.outOfScopeStatements && product.outOfScopeStatements.length > 0
+      ? product.outOfScopeStatements.map((statement) => `- ${statement}`)
+      : [
+          `- ${product.deferStatement || "Complex orchestration"}`,
+          `- External AI API integration`,
+        ]),
     "",
     `## Architecture Impact`,
     `- ${architecture.objective}`,

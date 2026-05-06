@@ -1,4 +1,11 @@
 function productStrategist(taskDescription) {
+  const isRepoBootstrap = containsAny(taskDescription, [
+    "Repo Bootstrap",
+    "repo bootstrap",
+    "standalone repository",
+    "bootstrap a new repo",
+    "maliwan-2",
+  ]);
   const planningTask = containsAny(taskDescription, [
     "priorities",
     "planning/validation",
@@ -16,30 +23,60 @@ function productStrategist(taskDescription) {
 
   return {
     role: "Product Strategist",
-    objective: planningTask
+    objective: isRepoBootstrap
+      ? "Define the repo bootstrap goal and protect the standalone boundary."
+      : planningTask
       ? "Clarify operating priorities before implementation."
       : "Clarify the user value and the smallest useful outcome.",
-    valueStatement: planningTask
+    valueStatement: isRepoBootstrap
+      ? "A clean standalone repository boundary keeps maliwan-2 separate from Maliwan 1.0 and Big Crew, so the new system can evolve without inherited coupling."
+      : planningTask
       ? hasHouseholdBoundary
         ? "Big Crew should decide the first Maliwan 2.0 slice that proves the household/member boundary before implementation spreads."
         : "Big Crew should help decide the right first Maliwan 2.0 slice before any implementation starts."
       : "Clarify the user value and the smallest useful outcome.",
-    priorityStatement: planningTask
+    priorityStatement: isRepoBootstrap
+      ? "Prioritize the standalone repo skeleton and architecture boundary before feature implementation."
+      : planningTask
       ? hasHouseholdBoundary
         ? "Prioritize D1 validation, household-aware sessions, and member-scoped medication, then defer household-scoped inventory and admin UI."
         : "Prioritize product value, quality, Codex quota efficiency, architecture learning, scope control, regression safety, and release readiness."
       : "Keep the scope narrow and testable.",
-    inScopeStatement: planningTask
+    inScopeStatement: isRepoBootstrap
+      ? "Scope the repo bootstrap slice: initialize the skeleton, README, folder boundaries, and D1 placeholders."
+      : planningTask
       ? hasHouseholdBoundary
         ? "Scope one validation/planning ticket around the household/member boundary and the first SQL-backed data layer."
         : "Scope the first decision-making slice, ticket split, and quality gates."
       : "Keep the scope narrow and testable.",
-    deferStatement: planningTask
+    deferStatement: isRepoBootstrap
+      ? "Defer runtime feature implementation, inventory, and admin UI."
+      : planningTask
       ? hasHouseholdBoundary
         ? "Defer household-scoped inventory, full implementation, and admin UI."
         : "Defer full implementation, whole-system migration, and admin UI."
       : "Prefer the smallest workflow that still helps the user.",
-    ticketSplitStatements: planningTask
+    outOfScopeStatements: isRepoBootstrap
+      ? [
+          "Do not copy Maliwan 1.0 runtime code.",
+          "Do not mix Big Crew code into maliwan-2.",
+          "Do not implement inventory yet.",
+          "Do not build admin UI.",
+          "Do not migrate the whole system.",
+        ]
+      : [],
+    ticketSplitStatements: isRepoBootstrap
+      ? [
+          "1. Initialize the standalone maliwan-2 repo structure.",
+          "2. Create a README with product and architecture intent.",
+          "3. Create a minimal Node / Cloudflare Worker project skeleton.",
+          "4. Add folder boundaries for app, orchestrator, domain, infrastructure, and tests.",
+          "5. Add a D1 schema draft or migration placeholder.",
+          "6. Add a JSON seed data placeholder for one household with Rin and Benchawan.",
+          "7. Add a smoke test for the project skeleton.",
+          "8. Prepare the Codex prompt for repo bootstrap only.",
+        ]
+      : planningTask
       ? hasHouseholdBoundary
         ? [
             "1. Validate D1 schema for the household/member medication flow.",
