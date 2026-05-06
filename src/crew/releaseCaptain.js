@@ -1,10 +1,15 @@
 function releaseCaptain(taskDescription, product, architecture, qa) {
   const heading = extractFirstHeading(taskDescription).toLowerCase();
-  const isSchemaValidation = containsAny(taskDescription, [
+  const isRepositoryContract = containsAny(taskDescription, [
+    "Medication Repository Contract",
+    "repository contract",
+    "contract/interface slice",
+  ]) || heading.includes("medication repository contract");
+  const isSchemaValidation = !isRepositoryContract && (containsAny(taskDescription, [
     "D1 Schema Validation",
     "schema validation",
     "SQL-backed data boundary",
-  ]) || heading.includes("d1 schema validation");
+  ]) || heading.includes("d1 schema validation"));
   const isRepoBootstrap = containsAny(taskDescription, [
     "Repo Bootstrap",
     "repo bootstrap",
@@ -28,6 +33,8 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
     role: "Release Captain",
     objective: isSchemaValidation
       ? "Keep the D1 validation slice reviewable and recoverable before ship."
+      : isRepositoryContract
+      ? "Keep the repository contract slice reviewable and recoverable before ship."
       : isRepoBootstrap
       ? "Keep the repo bootstrap slice reviewable and recoverable before ship."
       : hasHouseholdBoundary
@@ -35,6 +42,8 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
       : "Describe release readiness, reviewability, and recovery before ship.",
     releaseStatement: isSchemaValidation
       ? "Keep the release small, reviewable, and safe to hand off for the first Maliwan 2.0 boundary check."
+      : isRepositoryContract
+      ? "Keep the release small, reviewable, and safe to hand off while the repository boundary is being defined."
       : isRepoBootstrap
       ? "Keep the bootstrap release small, reviewable, and safe to hand off."
       : hasHouseholdBoundary
@@ -46,6 +55,13 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
           "Require tests before merge.",
           "Identify the rollback/recovery path before shipping.",
           "Do not ship if household/member isolation is unproven.",
+        ]
+      : isRepositoryContract
+      ? [
+          "Treat this as a contract slice before runtime implementation.",
+          "Require tests before merge.",
+          "Identify the rollback/recovery path before shipping.",
+          "Do not ship if the contract shape is unclear or too coupled to D1.",
         ]
       : isRepoBootstrap
       ? [
@@ -67,6 +83,8 @@ function releaseCaptain(taskDescription, product, architecture, qa) {
         ],
     activitySummary: isSchemaValidation
       ? "requires tests to pass and blocks commit if household/member isolation is unproven."
+      : isRepositoryContract
+      ? "requires contract tests and blocks ship if the boundary is too coupled to D1."
       : isRepoBootstrap
       ? "keeps the bootstrap commit small and reviewable, with rollback/recovery in mind."
       : isPriorityReview

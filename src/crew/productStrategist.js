@@ -1,10 +1,15 @@
 function productStrategist(taskDescription) {
   const heading = extractFirstHeading(taskDescription).toLowerCase();
-  const isSchemaValidation = containsAny(taskDescription, [
+  const isRepositoryContract = containsAny(taskDescription, [
+    "Medication Repository Contract",
+    "repository contract",
+    "contract/interface slice",
+  ]) || heading.includes("medication repository contract");
+  const isSchemaValidation = !isRepositoryContract && (containsAny(taskDescription, [
     "D1 Schema Validation",
     "schema validation",
     "SQL-backed data boundary",
-  ]) || heading.includes("d1 schema validation");
+  ]) || heading.includes("d1 schema validation"));
   const isRepoBootstrap = containsAny(taskDescription, [
     "Repo Bootstrap",
     "repo bootstrap",
@@ -35,6 +40,8 @@ function productStrategist(taskDescription) {
     role: "Product Strategist",
     objective: isSchemaValidation
       ? "Clarify the first schema-validation slice before implementation."
+      : isRepositoryContract
+      ? "Clarify the medication repository boundary before implementation."
       : isRepoBootstrap
       ? "Define the repo bootstrap goal and protect the standalone boundary."
       : planningTask
@@ -42,6 +49,8 @@ function productStrategist(taskDescription) {
       : "Clarify the user value and the smallest useful outcome.",
     valueStatement: isSchemaValidation
       ? "A reliable D1 schema keeps member-scoped medication safe for the Malaithong household and prevents Rin and Benchawan from being mixed in later runtime work."
+      : isRepositoryContract
+      ? "A clear repository contract keeps member-scoped medication schedules and logs safe for future LINE workflows without coupling business logic directly to D1."
       : isRepoBootstrap
       ? "A clean standalone repository boundary keeps maliwan-2 separate from Maliwan 1.0 and Big Crew, so the new system can evolve without inherited coupling."
       : planningTask
@@ -51,6 +60,8 @@ function productStrategist(taskDescription) {
       : "Clarify the user value and the smallest useful outcome.",
     priorityStatement: isSchemaValidation
       ? "Prioritize validating the household/member/LINE identity boundary and the D1 schema before runtime work; defer inventory and admin UI."
+      : isRepositoryContract
+      ? "Prioritize the repository contract and method boundaries before any real D1 queries or runtime behavior."
       : isRepoBootstrap
       ? "Prioritize the standalone repo skeleton and architecture boundary before feature implementation."
       : planningTask
@@ -60,6 +71,8 @@ function productStrategist(taskDescription) {
       : "Keep the scope narrow and testable.",
     inScopeStatement: isSchemaValidation
       ? "Scope the D1 schema draft, seed data, and boundary tests for the first member-scoped medication slice."
+      : isRepositoryContract
+      ? "Scope the medication repository contract, method names, and exported interface shape."
       : isRepoBootstrap
       ? "Scope the repo bootstrap slice: initialize the skeleton, README, folder boundaries, and D1 placeholders."
       : planningTask
@@ -69,6 +82,8 @@ function productStrategist(taskDescription) {
       : "Keep the scope narrow and testable.",
     deferStatement: isSchemaValidation
       ? "Defer runtime medication behavior, inventory, and admin UI."
+      : isRepositoryContract
+      ? "Defer real D1 queries, LINE runtime, inventory, and admin UI."
       : isRepoBootstrap
       ? "Defer runtime feature implementation, inventory, and admin UI."
       : planningTask
@@ -94,6 +109,16 @@ function productStrategist(taskDescription) {
           "Do not copy Maliwan 1.0 runtime code.",
           "Do not copy Big Crew runtime code.",
         ]
+      : isRepositoryContract
+      ? [
+          "Do not implement real D1 queries.",
+          "Do not implement LINE webhook runtime.",
+          "Do not implement medication read runtime behavior.",
+          "Do not implement medication log runtime behavior.",
+          "Do not implement inventory.",
+          "Do not build admin UI.",
+          "Do not migrate the whole Maliwan runtime.",
+        ]
       : [],
     ticketSplitStatements: isRepoBootstrap
       ? [
@@ -113,6 +138,14 @@ function productStrategist(taskDescription) {
           "3. Define the repository boundary between domain logic and D1.",
           "4. Add schema and seed validation tests.",
           "5. Prepare the Codex prompt for the schema-validation ticket only.",
+        ]
+      : isRepositoryContract
+      ? [
+          "1. Define the MedicationRepository contract and exported interface shape.",
+          "2. Specify method names and expected inputs/outputs for member-scoped schedules and logs.",
+          "3. Keep household_id, member_id, and line_user_id explicit in the contract.",
+          "4. Add contract-shape tests for the repository interface.",
+          "5. Prepare the Codex prompt for the contract slice only.",
         ]
       : planningTask
       ? hasHouseholdBoundary
@@ -135,12 +168,19 @@ function productStrategist(taskDescription) {
           "Use the Malaithong household and Rin/Benchawan as the validation seed.",
           "Keep the schema ready for future LINE identity mapping.",
         ]
+      : isRepositoryContract
+      ? [
+          "Keep the repository boundary separate from D1 implementation details.",
+          "Use the contract to prepare for future LINE-based medication workflows.",
+        ]
       : [
           "Keep the scope narrow and testable.",
           "Prefer the smallest workflow that still helps the user.",
         ],
     activitySummary: isSchemaValidation
       ? "frames this as a schema validation slice that protects senior-friendly family care and medication data safety from household/member mix-ups."
+      : isRepositoryContract
+      ? "frames this as a repository contract slice that keeps medication schedules and logs safe without coupling product logic to D1."
       : isRepoBootstrap
       ? "frames this as a clean standalone repo boundary so maliwan-2 stays separate from Maliwan 1.0 and Big Crew."
       : isPriorityReview

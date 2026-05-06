@@ -1,10 +1,15 @@
 function promptSmith(taskDescription, product, architecture) {
   const heading = extractFirstHeading(taskDescription).toLowerCase();
-  const isSchemaValidation = containsAny(taskDescription, [
+  const isRepositoryContract = containsAny(taskDescription, [
+    "Medication Repository Contract",
+    "repository contract",
+    "contract/interface slice",
+  ]) || heading.includes("medication repository contract");
+  const isSchemaValidation = !isRepositoryContract && (containsAny(taskDescription, [
     "D1 Schema Validation",
     "schema validation",
     "SQL-backed data boundary",
-  ]) || heading.includes("d1 schema validation");
+  ]) || heading.includes("d1 schema validation"));
   const isRepoBootstrap = containsAny(taskDescription, [
     "Repo Bootstrap",
     "repo bootstrap",
@@ -28,6 +33,8 @@ function promptSmith(taskDescription, product, architecture) {
     role: "Prompt Smith",
     objective: isSchemaValidation
       ? "Turn the schema-validation slice into a clear work package request."
+      : isRepositoryContract
+      ? "Turn the repository contract slice into a clear work package request."
       : isRepoBootstrap
       ? "Turn the repo bootstrap slice into a clear work package request."
       : hasHouseholdBoundary
@@ -35,6 +42,8 @@ function promptSmith(taskDescription, product, architecture) {
       : "Turn the task into a clear work package request.",
     promptStatement: isSchemaValidation
       ? "Create one Codex-ready prompt for validating the D1 schema for the Malaithong household only."
+      : isRepositoryContract
+      ? "Create one Codex-ready prompt for defining the medication repository contract only."
       : isRepoBootstrap
       ? "Create one Codex-ready prompt for bootstrapping the new maliwan-2 repository skeleton only."
       : hasHouseholdBoundary
@@ -50,6 +59,17 @@ function promptSmith(taskDescription, product, architecture) {
           "Add or document minimal D1 schema for households, household_members, line_identities, medication_schedules, and medication_logs.",
           "Add or document seed data for one household with Rin and Benchawan.",
           "Add verification/tests for member-scoped medication isolation.",
+        ]
+      : isRepositoryContract
+      ? [
+          "Implement only the repository contract slice.",
+          "Do not implement real D1 queries yet.",
+          "Do not implement LINE webhook runtime.",
+          "Do not implement medication read or log runtime behavior.",
+          "Do not build inventory or admin UI.",
+          "Define method names, inputs, and outputs for member-scoped schedules and logs.",
+          "Keep household_id, member_id, and line_user_id explicit.",
+          "Add contract-shape tests for the exported interface.",
         ]
       : isRepoBootstrap
       ? [
@@ -77,6 +97,8 @@ function promptSmith(taskDescription, product, architecture) {
         ],
     activitySummary: isSchemaValidation
       ? "scopes the Codex prompt to Ticket 1 only and excludes runtime, inventory, admin UI, and full migration."
+      : isRepositoryContract
+      ? "scopes the Codex prompt to the repository contract only and keeps runtime work deferred."
       : isRepoBootstrap
       ? "scopes the Codex prompt to repo bootstrap only with no feature implementation."
       : isPriorityReview

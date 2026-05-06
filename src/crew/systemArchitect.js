@@ -1,10 +1,15 @@
 function systemArchitect(taskDescription, product) {
   const heading = extractFirstHeading(taskDescription).toLowerCase();
-  const isSchemaValidation = containsAny(taskDescription, [
+  const isRepositoryContract = containsAny(taskDescription, [
+    "Medication Repository Contract",
+    "repository contract",
+    "contract/interface slice",
+  ]) || heading.includes("medication repository contract");
+  const isSchemaValidation = !isRepositoryContract && (containsAny(taskDescription, [
     "D1 Schema Validation",
     "schema validation",
     "SQL-backed data boundary",
-  ]) || heading.includes("d1 schema validation");
+  ]) || heading.includes("d1 schema validation"));
   const isRepoBootstrap = containsAny(taskDescription, [
     "Repo Bootstrap",
     "repo bootstrap",
@@ -28,6 +33,8 @@ function systemArchitect(taskDescription, product) {
     role: "System Architect",
     objective: isSchemaValidation
       ? "Define the household/member boundary and the first SQL-backed data layer."
+      : isRepositoryContract
+      ? "Define the medication repository boundary and interface contract."
       : isRepoBootstrap
       ? "Define the standalone repo boundary and initial folder structure."
       : hasHouseholdBoundary
@@ -35,6 +42,8 @@ function systemArchitect(taskDescription, product) {
       : "Define a simple structure that can be extended later.",
     boundaryStatement: isSchemaValidation
       ? "Model household_id, member_id, and line_user_id explicitly; keep member-scoped medication isolated; defer household-scoped inventory and admin UI."
+      : isRepositoryContract
+      ? "Keep the contract separate from D1 implementation details; model household_id, member_id, and line_user_id explicitly."
       : isRepoBootstrap
       ? "Keep maliwan-2 separate from Maliwan 1.0 and Big Crew; avoid copied runtime code; define folder boundaries and a D1 boundary."
       : hasHouseholdBoundary
@@ -45,6 +54,12 @@ function systemArchitect(taskDescription, product) {
           "Use Cloudflare D1 as the SQL-backed validation target.",
           "Keep a repository boundary between domain logic and D1.",
           "JSON seed data is acceptable for the early setup slice.",
+        ]
+      : isRepositoryContract
+      ? [
+          "Define method names and input/output shapes without binding to D1.",
+          "Keep repository behavior testable through exported contract functions.",
+          "Treat D1 as infrastructure behind the boundary.",
         ]
       : isRepoBootstrap
       ? [
@@ -64,6 +79,8 @@ function systemArchitect(taskDescription, product) {
         ],
     activitySummary: isSchemaValidation
       ? "separates D1 schema validation from repo bootstrap and keeps household_id, member_id, and line_user_id explicit."
+      : isRepositoryContract
+      ? "separates the medication repository contract from D1 implementation and keeps the household/member boundary explicit."
       : isRepoBootstrap
       ? "separates the new repo from Maliwan 1.0 and Big Crew, with Worker/D1 placeholders and clear folder boundaries."
       : isPriorityReview

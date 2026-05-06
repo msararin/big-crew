@@ -1,10 +1,15 @@
 function qaSentinel(taskDescription, product, architecture) {
   const heading = extractFirstHeading(taskDescription).toLowerCase();
-  const isSchemaValidation = containsAny(taskDescription, [
+  const isRepositoryContract = containsAny(taskDescription, [
+    "Medication Repository Contract",
+    "repository contract",
+    "contract/interface slice",
+  ]) || heading.includes("medication repository contract");
+  const isSchemaValidation = !isRepositoryContract && (containsAny(taskDescription, [
     "D1 Schema Validation",
     "schema validation",
     "SQL-backed data boundary",
-  ]) || heading.includes("d1 schema validation");
+  ]) || heading.includes("d1 schema validation"));
   const isRepoBootstrap = containsAny(taskDescription, [
     "Repo Bootstrap",
     "repo bootstrap",
@@ -28,6 +33,8 @@ function qaSentinel(taskDescription, product, architecture) {
     role: "QA Sentinel",
     objective: isSchemaValidation
       ? "Define the minimum regressions that must stay green for the D1 validation slice."
+      : isRepositoryContract
+      ? "Define the minimum regressions that must stay green for the repository contract slice."
       : isRepoBootstrap
       ? "Define the minimum regressions that must stay green for the repo bootstrap slice."
       : hasHouseholdBoundary
@@ -35,6 +42,8 @@ function qaSentinel(taskDescription, product, architecture) {
       : "Define the minimum regressions that must stay green.",
     acceptanceStatement: isSchemaValidation
       ? "Prove the first Maliwan 2.0 slice keeps the household/member boundary intact, validates the SQL-backed data layer, and leaves inventory/admin UI deferred."
+      : isRepositoryContract
+      ? "Prove the repository contract exposes the correct member-scoped medication boundary without binding to D1 implementation details."
       : isRepoBootstrap
       ? "Prove the new repo boots, tests run, the README explains Maliwan 2.0 purpose, and placeholders exist without copying legacy runtime code."
       : hasHouseholdBoundary
@@ -48,6 +57,14 @@ function qaSentinel(taskDescription, product, architecture) {
           "Inventory remains untouched in this slice.",
           "No admin UI is introduced.",
           "No full migration is performed.",
+        ]
+      : isRepositoryContract
+      ? [
+          "The repository contract exports the expected interface for member-scoped schedules and logs.",
+          "The contract includes household_id, member_id, and line_user_id in its shape or documentation.",
+          "No real D1 queries are implemented.",
+          "No LINE runtime is introduced.",
+          "Inventory and admin UI remain out of scope.",
         ]
       : isRepoBootstrap
       ? [
@@ -76,6 +93,8 @@ function qaSentinel(taskDescription, product, architecture) {
         ],
     activitySummary: isSchemaValidation
       ? "requires tests for schema tables, seed data, and member-scoped medication isolation."
+      : isRepositoryContract
+      ? "requires contract-shape tests and keeps member-scoped medication isolated from D1 details."
       : isRepoBootstrap
       ? "requires smoke tests, placeholder checks, and no copied runtime code."
       : isPriorityReview

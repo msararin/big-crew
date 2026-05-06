@@ -314,6 +314,88 @@ test("CLI generates schema validation output for the maliwan-2 D1 boundary slice
   assert.ok(releaseMatch[1].includes("Do not ship if household/member isolation is unproven"));
 });
 
+test("CLI generates medication repository contract output for maliwan-2", () => {
+  const result = spawnSync(
+    process.execPath,
+    ["src/index.js", "--input", "inputs/maliwan-2/medication-repository-contract.md"],
+    {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }
+  );
+
+  assert.equal(result.status, 0);
+
+  const taskSummaryMatch = result.stdout.match(/## Task Summary\n([\s\S]*?)\n\n## Crew Activity Summary/);
+  assert.ok(taskSummaryMatch, "expected to find the Task Summary section");
+  assert.ok(taskSummaryMatch[1].includes("Medication Repository Contract"));
+  assert.ok(taskSummaryMatch[1].includes("member-scoped"));
+  assert.ok(taskSummaryMatch[1].includes("Cloudflare D1"));
+  assert.ok(taskSummaryMatch[1].includes("contract/interface slice"));
+  assert.ok(taskSummaryMatch[1].includes("not runtime implementation"));
+
+  const crewSummaryMatch = result.stdout.match(/## Crew Activity Summary\n([\s\S]*?)\n\n## Product Value/);
+  assert.ok(crewSummaryMatch, "expected to find the Crew Activity Summary section");
+  assert.ok(crewSummaryMatch[1].includes("Product Strategist: frames this as a repository contract slice"));
+  assert.ok(crewSummaryMatch[1].includes("System Architect: separates the medication repository contract from D1 implementation"));
+  assert.ok(crewSummaryMatch[1].includes("QA Sentinel: requires contract-shape tests"));
+  assert.ok(crewSummaryMatch[1].includes("Prompt Smith: scopes the Codex prompt to the repository contract only"));
+  assert.ok(crewSummaryMatch[1].includes("Release Captain: requires contract tests and blocks ship"));
+
+  const productValueMatch = result.stdout.match(/## Product Value\n([\s\S]*?)\n\n## Priority/);
+  assert.ok(productValueMatch, "expected to find the Product Value section");
+  assert.ok(productValueMatch[1].includes("repository contract keeps member-scoped medication schedules and logs safe"));
+  assert.ok(productValueMatch[1].includes("future LINE workflows"));
+  assert.ok(productValueMatch[1].includes("coupling business logic directly to D1"));
+
+  const priorityMatch = result.stdout.match(/## Priority\n([\s\S]*?)\n\n## Suggested Ticket Split/);
+  assert.ok(priorityMatch, "expected to find the Priority section");
+  assert.ok(priorityMatch[1].includes("repository contract and method boundaries"));
+  assert.ok(priorityMatch[1].includes("real D1 queries"));
+
+  const ticketSplitMatch = result.stdout.match(/## Suggested Ticket Split\n([\s\S]*?)\n\n## In Scope/);
+  assert.ok(ticketSplitMatch, "expected to find the Suggested Ticket Split section");
+  assert.ok(ticketSplitMatch[1].includes("Define the MedicationRepository contract and exported interface shape."));
+  assert.ok(ticketSplitMatch[1].includes("Specify method names and expected inputs/outputs for member-scoped schedules and logs."));
+  assert.ok(ticketSplitMatch[1].includes("Keep household_id, member_id, and line_user_id explicit in the contract."));
+  assert.ok(ticketSplitMatch[1].includes("Add contract-shape tests for the repository interface."));
+
+  const architectureMatch = result.stdout.match(/## Architecture Impact\n([\s\S]*?)\n\n## Acceptance Criteria/);
+  assert.ok(architectureMatch, "expected to find the Architecture Impact section");
+  assert.ok(architectureMatch[1].includes("repository boundary"));
+  assert.ok(architectureMatch[1].includes("household_id"));
+  assert.ok(architectureMatch[1].includes("member_id"));
+  assert.ok(architectureMatch[1].includes("line_user_id"));
+  assert.ok(architectureMatch[1].includes("D1"));
+
+  const acceptanceMatch = result.stdout.match(/## Acceptance Criteria\n([\s\S]*?)\n\n## Regression Tests/);
+  assert.ok(acceptanceMatch, "expected to find the Acceptance Criteria section");
+  assert.ok(acceptanceMatch[1].includes("repository contract exposes the correct member-scoped medication boundary"));
+  assert.ok(acceptanceMatch[1].includes("without binding to D1 implementation details"));
+  assert.ok(acceptanceMatch[1].includes("Inventory and admin UI remain out of scope"));
+
+  const regressionMatch = result.stdout.match(/## Regression Tests\n([\s\S]*?)\n\n## Codex-Ready Prompt/);
+  assert.ok(regressionMatch, "expected to find the Regression Tests section");
+  assert.ok(regressionMatch[1].includes("repository contract exports the expected interface"));
+  assert.ok(regressionMatch[1].includes("household_id, member_id, and line_user_id"));
+  assert.ok(regressionMatch[1].includes("No real D1 queries are implemented."));
+  assert.ok(regressionMatch[1].includes("No LINE runtime is introduced."));
+
+  const promptMatch = result.stdout.match(/## Codex-Ready Prompt\n([\s\S]*?)\n\n## Definition of Done/);
+  assert.ok(promptMatch, "expected to find the Codex-Ready Prompt section");
+  assert.ok(promptMatch[1].includes("Create one Codex-ready prompt for defining the medication repository contract only."));
+  assert.ok(promptMatch[1].includes("Implement only the repository contract slice."));
+  assert.ok(promptMatch[1].includes("Do not implement real D1 queries yet."));
+  assert.ok(promptMatch[1].includes("Do not implement LINE webhook runtime."));
+  assert.ok(promptMatch[1].includes("Add contract-shape tests for the exported interface."));
+
+  const releaseMatch = result.stdout.match(/## Release Captain\n([\s\S]*?)\n\n## Notes/);
+  assert.ok(releaseMatch, "expected to find the Release Captain section");
+  assert.ok(releaseMatch[1].includes("contract slice before runtime implementation"));
+  assert.ok(releaseMatch[1].includes("rollback/recovery path"));
+  assert.ok(releaseMatch[1].includes("Do not ship if the contract shape is unclear or too coupled to D1"));
+});
+
 test("CLI returns a clear error when --input is missing a file path", () => {
   const result = spawnSync(
     process.execPath,

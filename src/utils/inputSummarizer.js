@@ -12,11 +12,16 @@ function summarizeMarkdownInput(markdown) {
   const expectedOutputSection = extractSection(text, "Expected Output");
   const sentences = [];
   const titleLower = title.toLowerCase();
-  const isSchemaValidation = containsAny(text, [
+  const isRepositoryContract = containsAny(text, [
+    "Medication Repository Contract",
+    "repository contract",
+    "contract/interface slice",
+  ]) || titleLower.includes("medication repository contract");
+  const isSchemaValidation = !isRepositoryContract && (containsAny(text, [
     "D1 Schema Validation",
     "schema validation",
     "SQL-backed data boundary",
-  ]) || titleLower.includes("d1 schema validation");
+  ]) || titleLower.includes("d1 schema validation"));
   const isRepoBootstrap = containsAny(text, [
     "Repo Bootstrap",
     "repo bootstrap",
@@ -33,6 +38,10 @@ function summarizeMarkdownInput(markdown) {
     sentences.push("Maliwan 2.0 D1 Schema Validation is a planning task for Big Crew's Maliwan 2.0 mission.");
     sentences.push("Validate the first SQL-backed data boundary for a senior-friendly household-aware care workflow, using household_id, member_id, and line_user_id to keep member-scoped medication safe for the Malaithong household with Rin and Benchawan.");
     sentences.push("Keep household-scoped inventory and admin UI deferred; this is a schema validation task, not runtime implementation.");
+  } else if (isRepositoryContract) {
+    sentences.push("Maliwan 2.0 Medication Repository Contract is a planning task for Big Crew's Maliwan 2.0 mission.");
+    sentences.push("Define the medication repository boundary so member-scoped schedules and logs stay safe for future LINE-based care workflows without coupling product logic directly to Cloudflare D1.");
+    sentences.push("Keep real D1 queries, LINE runtime, inventory, and admin UI deferred; this is a contract/interface slice, not runtime implementation.");
   } else if (isRepoBootstrap) {
     sentences.push("Maliwan 2.0 Repo Bootstrap is a planning task for Big Crew's Maliwan 2.0 mission.");
     sentences.push("Create a new standalone maliwan-2 repository separate from Maliwan 1.0 and Big Crew, with a Cloudflare Worker + D1 skeleton and member-scoped medication as the first domain slice.");
@@ -46,25 +55,25 @@ function summarizeMarkdownInput(markdown) {
       sentences.push(boundarySentence);
     }
     sentences.push("Keep it as one scoped validation/planning ticket.");
-  } else if (title) {
+  } else if (title && !isRepositoryContract) {
     sentences.push(`${title} is a planning task for Big Crew's Maliwan 2.0 mission.`);
   }
 
-  if (!isPriorityReview && !isSchemaValidation) {
+  if (!isPriorityReview && !isSchemaValidation && !isRepositoryContract) {
     const balanceSentence = buildBalanceSentence(expectedFocusSection, expectedOutputSection, text);
     if (balanceSentence) {
       sentences.push(balanceSentence);
     }
   }
 
-  if (!isRepoBootstrap && !isSchemaValidation) {
+  if (!isRepoBootstrap && !isSchemaValidation && !isRepositoryContract) {
     const topicSentence = buildTopicSentence(text, isPriorityReview);
     if (topicSentence) {
       sentences.push(topicSentence);
     }
   }
 
-  if (!isPriorityReview && !isRepoBootstrap && !isSchemaValidation) {
+  if (!isPriorityReview && !isRepoBootstrap && !isSchemaValidation && !isRepositoryContract) {
     const constraintSentence = summarizeConstraints(constraintsSection || text, isPriorityReview);
     if (constraintSentence) {
       sentences.push(constraintSentence);
