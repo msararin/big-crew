@@ -1,0 +1,19 @@
+{
+  "name": "big-crew",
+  "version": "1.0.0",
+  "description": "Rule-based CLI that turns product ideas into Codex-ready engineering work packages.",
+  "main": "src/index.js",
+  "bin": {
+    "big-crew": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "generate": "node src/index.js",
+    "sample": "node src/index.js \"D1 spike: validate inventory-aware menu routing\"",
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "msararin",
+  "license": "ISC",
+  "type": "commonjs"
+}
