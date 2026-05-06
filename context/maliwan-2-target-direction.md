@@ -1,26 +1,26 @@
 # Maliwan 2.0 Target Direction
 
-## Goal
+Maliwan 2.0 should become a household-aware care orchestrator.
 
-Evolve Maliwan from a household assistant into a broader care-support assistant.
+It should support:
 
-## Target capabilities
+- `household_id`
+- `member_id`
+- LINE identity mapping
+- member-scoped medication
+- household-scoped inventory
+- future family admin editing
 
-- Medication reminders
-- Daily medication check-in
-- Appointment reminders
-- Household-aware food support
-- Better follow-up workflows for caregivers
+Google Sheets should be replaced as the core data layer.
+Cloudflare D1 is the current preferred candidate for the first SQL-backed data layer because the current system already uses Cloudflare Worker and the portfolio goal is to learn backend architecture while keeping cost low.
 
-## Architectural direction
+Admin UI is not required yet.
+JSON seed files or simple developer-admin data files are acceptable for the early version.
 
-- Keep the CLI output rule-based and Codex-ready.
-- Separate planning from execution.
-- Keep outputs scoped, testable, and easy to hand off.
-- Avoid building a generic workflow engine too early.
+The first validation slice should be the medication workflow because it has clear household/member boundaries and higher safety risk than inventory.
 
-## Product direction
+## Big Crew Design Principle
 
-- Focus on user value.
-- Keep senior-friendly UX central.
-- Support future evolution without sacrificing clarity.
+Big Crew should transform product ideas into scoped, testable, Codex-ready engineering work packages.
+
+It should help reduce ambiguity, avoid overbuilding, split tickets, define acceptance criteria, define regression tests, and produce safer implementation prompts.
