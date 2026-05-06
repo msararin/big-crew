@@ -3,11 +3,15 @@
 const { mkdir, readFile, writeFile } = require("node:fs/promises");
 const path = require("node:path");
 const { buildEngineeringWorkPackage } = require("./orchestrator/engineeringOrchestrator");
+const { summarizeMarkdownInput } = require("./utils/inputSummarizer");
 const OUTPUT_FILE_PATH = path.join(process.cwd(), "output", "engineering-work-package.md");
 
 async function main() {
   try {
-    const task = await readTaskFromArgs(process.argv.slice(2));
+    const taskInput = await readTaskFromArgs(process.argv.slice(2));
+    const task = taskInput.source === "file"
+      ? summarizeMarkdownInput(taskInput.text)
+      : taskInput.text;
 
     if (!task) {
       process.stdout.write([
@@ -42,7 +46,10 @@ async function readTaskFromArgs(args) {
 
     try {
       const fileContents = await readFile(inputPath, "utf8");
-      return fileContents.trim();
+      return {
+        source: "file",
+        text: fileContents.trim(),
+      };
     } catch (error) {
       if (error && error.code === "ENOENT") {
         throw new Error(`input file not found: ${inputPath}`);
@@ -52,7 +59,10 @@ async function readTaskFromArgs(args) {
     }
   }
 
-  return args.join(" ").trim();
+  return {
+    source: "cli",
+    text: args.join(" ").trim(),
+  };
 }
 
 async function writeWorkPackageOutput(workPackage) {
